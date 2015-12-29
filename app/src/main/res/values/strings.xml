@@ -1,4 +1,21 @@
 <resources>
     <string name="app_name">Todolist</string>
     <string name="add">Add</string>
+
+    <string-array name="priority_array">
+        <item>Blocker</item>
+        <item>Critical</item>
+        <item>Major</item>
+        <item>Minor</item>
+        <item>Trivial</item>
+    </string-array>
+
+    <string-array name="members_array">
+        <item>Daniel</item>
+        <item>Shlomi</item>
+        <item>Amnon</item>
+        <item>Kedan</item>
+    </string-array>
+
+    <string name="title_activity_maps">Map</string>
 </resources>
