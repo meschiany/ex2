@@ -81,10 +81,8 @@ public class NewEditTask extends AppCompatActivity {
             @Override
             public void onClick(View arg0) {
                 Intent intent = new Intent();
-//                id of recrd in db for update
                 intent.putExtra("ID", db_id);
-//                position in the array list for later notify adapter
-                intent.putExtra("POSITION", position);
+//                intent.putExtra("POSITION", position);
                 intent.putExtra("TASK", taskDesk.getText().toString());
                 intent.putExtra("PRIORITY", spn_priority.getSelectedItem().toString());
                 intent.putExtra("LAT", latlng.latitude);

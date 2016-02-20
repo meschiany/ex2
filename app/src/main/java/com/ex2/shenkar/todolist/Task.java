@@ -13,11 +13,12 @@ public class Task implements Serializable {
     private String address;
     private String member;
     private Long date;
+    private String status;
 
     public Task() {
     }
 
-    public Task(int ID, String task, String priority, double lat, double lng, String address, String member, Long date) {
+    public Task(int ID, String task, String priority, double lat, double lng, String address, String member, Long date, String status) {
         this.ID = ID;
         this.task = task;
         this.priority = priority;
@@ -26,6 +27,7 @@ public class Task implements Serializable {
         this.address = address;
         this.member = member;
         this.date = date;
+        this.status = status;
     }
 
     public Long getDate() {
@@ -88,5 +90,13 @@ public class Task implements Serializable {
 
     public void setMember(String member) {
         this.member = member;
+    }
+
+    public String getStatus() {
+        return status;
+    }
+
+    public void setStatus(String member) {
+        this.status = status;
     }
 }

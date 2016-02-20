@@ -59,48 +59,49 @@ public class CustomAdapter extends BaseAdapter{
         Holder holder=new Holder();
 
         if (convertView != null){
-            holder.btn=(Button) convertView.findViewById(R.id.doneButton);
             holder.task=(TextView) convertView.findViewById(R.id.taskTextView);
+
+            holder.task.setText(result.get(position).getTask() + " - " + result.get(position).getStatus());
+            holder.task.setOnLongClickListener(new View.OnLongClickListener() {
+                @Override
+                public boolean onLongClick(View v) {
+
+                    Intent editTaskIntent = new Intent(context, NewEditTask.class);
+                    editTaskIntent.putExtra("position", position);
+                    editTaskIntent.putExtra("task", result.get(position));
+                    ((Activity) context).startActivityForResult(editTaskIntent, Consts.EDIT_TASK_CODE);
+                    return false;
+                }
+            });
+            if (!result.get(position).getStatus().equals(Consts.STATUS_DONE)){
+                holder.btn=(Button) convertView.findViewById(R.id.doneButton);
+                holder.btn.setVisibility(View.VISIBLE);
+                holder.btn.setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View v) {
+
+                        int id = result.get(position).getID();
+                        String task = result.get(position).getTask();
+                        Toast.makeText(context, "You finished " + task, Toast.LENGTH_LONG).show();
+                        // TODO set task as done
+                        String sql = String.format("UPDATE %s SET %s = '%s' WHERE %s = %d",
+                                TaskContract.TABLE,
+                                TaskContract.Columns.STATUS,
+                                Consts.STATUS_DONE,
+                                TaskContract.Columns._ID,
+                                id);
+
+                        TaskDBHelper helper = new TaskDBHelper(context);
+                        SQLiteDatabase sqlDB = helper.getWritableDatabase();
+                        sqlDB.execSQL(sql);
+
+                        MainActivity main = (MainActivity)context;
+                        main.setTaskList();
+
+                    }
+                });
+            }
         }
-        holder.task.setText(result.get(position).getTask());
-        holder.task.setOnLongClickListener(new View.OnLongClickListener() {
-
-            @Override
-            public boolean onLongClick(View v) {
-
-                Intent editTaskIntent = new Intent(context, NewEditTask.class);
-                Log.d("mesch", String.valueOf(result.get(position).getID()));
-                editTaskIntent.putExtra("position", position);
-                editTaskIntent.putExtra("task", result.get(position));
-                ((Activity) context).startActivityForResult(editTaskIntent, Consts.EDIT_TASK_CODE);
-                return false;
-            }
-        });
-
-        holder.btn.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                Log.d("mesch", result.get(position).getTask());
-
-                String task = result.get(position).getTask();
-                Toast.makeText(context, "You finished " + task, Toast.LENGTH_LONG).show();
-                Log.d("mesch", task);
-
-                String sql = String.format("DELETE FROM %s WHERE %s = '%s'",
-                        TaskContract.TABLE,
-                        TaskContract.Columns.TASK,
-                        task);
-
-
-                TaskDBHelper helper = new TaskDBHelper(context);
-                SQLiteDatabase sqlDB = helper.getWritableDatabase();
-                sqlDB.execSQL(sql);
-
-                result.remove(position);
-
-                notifyDataSetChanged();
-            }
-        });
         return convertView;
     }
 }
