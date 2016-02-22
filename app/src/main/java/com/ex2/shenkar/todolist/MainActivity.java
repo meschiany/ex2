@@ -100,7 +100,8 @@ public class MainActivity extends AppCompatActivity {
                         TaskContract.Columns.LOCATION,
                         TaskContract.Columns.MEMBER,
                         TaskContract.Columns.DATE,
-                        TaskContract.Columns.STATUS
+                        TaskContract.Columns.STATUS,
+                        TaskContract.Columns.FLOOR
                 },
                 null,null,null,null,null);
 
@@ -144,7 +145,8 @@ public class MainActivity extends AppCompatActivity {
                     cursor.getString(cursor.getColumnIndexOrThrow(TaskContract.Columns.LOCATION)),
                     cursor.getString(cursor.getColumnIndexOrThrow(TaskContract.Columns.MEMBER)),
                     cursor.getLong(cursor.getColumnIndexOrThrow(TaskContract.Columns.DATE)),
-                    cursor.getString(cursor.getColumnIndexOrThrow(TaskContract.Columns.STATUS))
+                    cursor.getString(cursor.getColumnIndexOrThrow(TaskContract.Columns.STATUS)),
+                    cursor.getString(cursor.getColumnIndexOrThrow(TaskContract.Columns.FLOOR))
             );
             if (currentStatus.equals(Consts.STATUS_ALL)||currentTask.getStatus().equals(currentStatus)){
                 prgmNameList.add(currentTask);
@@ -173,6 +175,7 @@ public class MainActivity extends AppCompatActivity {
         Double lng = data.getDoubleExtra("LNG", 1);
         String location = data.getStringExtra("LOCATION");
         String member = data.getStringExtra("MEMBER");
+        String floor = data.getStringExtra("FLOOR");
         Long selectedDate = data.getLongExtra("DATE", 1);
 
         ContentValues values = new ContentValues();
@@ -182,6 +185,7 @@ public class MainActivity extends AppCompatActivity {
         values.put(TaskContract.Columns.LNG, lng);
         values.put(TaskContract.Columns.LOCATION, location);
         values.put(TaskContract.Columns.MEMBER, member);
+        values.put(TaskContract.Columns.FLOOR, floor);
         values.put(TaskContract.Columns.DATE, selectedDate);
         values.put(TaskContract.Columns.STATUS, status);
 

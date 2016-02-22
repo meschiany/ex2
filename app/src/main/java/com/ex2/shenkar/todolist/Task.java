@@ -14,11 +14,12 @@ public class Task implements Serializable {
     private String member;
     private Long date;
     private String status;
+    private String floor;
 
     public Task() {
     }
 
-    public Task(int ID, String task, String priority, double lat, double lng, String address, String member, Long date, String status) {
+    public Task(int ID, String task, String priority, double lat, double lng, String address, String member, Long date, String status, String floor) {
         this.ID = ID;
         this.task = task;
         this.priority = priority;
@@ -28,6 +29,15 @@ public class Task implements Serializable {
         this.member = member;
         this.date = date;
         this.status = status;
+        this.floor = floor;
+    }
+
+    public String getFloor() {
+        return floor;
+    }
+
+    public void setFloor(String floor) {
+        this.floor = floor;
     }
 
     public Long getDate() {

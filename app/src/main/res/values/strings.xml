@@ -17,5 +17,13 @@
         <item>Kedan</item>
     </string-array>
 
+    <string-array name="floors_array">
+        <item>1st Floor</item>
+        <item>2nd Floor</item>
+        <item>3rd Floor</item>
+        <item>4th Floor</item>
+    </string-array>
+
+
     <string name="title_activity_maps">Map</string>
 </resources>

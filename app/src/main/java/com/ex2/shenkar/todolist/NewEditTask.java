@@ -23,6 +23,7 @@ public class NewEditTask extends AppCompatActivity {
     private Button btnNewTask;
     private Spinner spn_priority;
     private Spinner spn_member;
+    private Spinner spn_floor;
     private LatLng latlng = new LatLng(0,0);
     private CalendarView selDate;
     private int db_id = 0;
@@ -52,6 +53,13 @@ public class NewEditTask extends AppCompatActivity {
         member_adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
         spn_member.setAdapter(member_adapter);
 
+//      Floor Spinner
+        spn_floor = (Spinner) findViewById(R.id.spn_floor);
+        ArrayAdapter<CharSequence> floor_adapter = ArrayAdapter.createFromResource(this,
+                R.array.floors_array, android.R.layout.simple_spinner_item);
+        floor_adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+        spn_floor.setAdapter(floor_adapter);
+
 
         // check if for edit
         final Task existingTask;
@@ -59,10 +67,12 @@ public class NewEditTask extends AppCompatActivity {
             existingTask = (Task)getIntent().getSerializableExtra("task");
             int spinnerPosition = priority_adapter.getPosition(existingTask.getPriority());
             spn_priority.setSelection(spinnerPosition);
-            etLoc.setText(existingTask.getAddress());
-            taskDesk.setText(existingTask.getTask());
             spinnerPosition = member_adapter.getPosition(existingTask.getMember());
             spn_member.setSelection(spinnerPosition);
+            spinnerPosition = floor_adapter.getPosition(existingTask.getFloor());
+            spn_floor.setSelection(spinnerPosition);
+            etLoc.setText(existingTask.getAddress());
+            taskDesk.setText(existingTask.getTask());
             selDate.setDate(existingTask.getDate());
             db_id = existingTask.getID();
             position = getIntent().getIntExtra("position",position);
@@ -90,6 +100,7 @@ public class NewEditTask extends AppCompatActivity {
                 intent.putExtra("LNG", latlng.longitude);
                 intent.putExtra("LOCATION", etLoc.getText().toString());
                 intent.putExtra("MEMBER",spn_member.getSelectedItem().toString());
+                intent.putExtra("FLOOR",spn_floor.getSelectedItem().toString());
                 intent.putExtra("DATE", selDate.getDate());
                 setResult(Activity.RESULT_OK, intent);
                 finish();
@@ -102,10 +113,8 @@ public class NewEditTask extends AppCompatActivity {
         switch(requestCode) {
             case (Consts.GET_LOCATION) : {
                 Long lat = data.getLongExtra("lat",1);
-                Toast.makeText(this, lat.toString() , Toast.LENGTH_LONG).show();
                 Long lng = data.getLongExtra("lng", 1);
                 latlng = new LatLng(lat,lng);
-                Toast.makeText(this,lat.toString(), Toast.LENGTH_LONG).show();
                 etLoc.setText(data.getStringExtra("location"));
             }
         }
