@@ -58,49 +58,39 @@ public class CustomAdapter extends BaseAdapter{
         }
         Holder holder=new Holder();
 
-        if (convertView != null){
-            holder.task=(TextView) convertView.findViewById(R.id.taskTextView);
 
-            holder.task.setText(result.get(position).getTask() + " - " + result.get(position).getStatus());
-            holder.task.setOnLongClickListener(new View.OnLongClickListener() {
+        holder.task=(TextView) convertView.findViewById(R.id.taskTextView);
+
+        holder.task.setText(result.get(position).getTask() + " - " + result.get(position).getStatus());
+        holder.task.setOnLongClickListener(new View.OnLongClickListener() {
+            @Override
+            public boolean onLongClick(View v) {
+
+        Intent editTaskIntent = new Intent(context, NewEditTask.class);
+        editTaskIntent.putExtra("position", position);
+        editTaskIntent.putExtra("task", result.get(position));
+        ((Activity) context).startActivityForResult(editTaskIntent, Consts.EDIT_TASK_CODE);
+        return false;
+            }
+        });
+        if (!result.get(position).getStatus().equals(Consts.STATUS_DONE)){
+            holder.btn=(Button) convertView.findViewById(R.id.doneButton);
+            holder.btn.setVisibility(View.VISIBLE);
+            holder.btn.setOnClickListener(new View.OnClickListener() {
                 @Override
-                public boolean onLongClick(View v) {
+                public void onClick(View v) {
 
-                    Intent editTaskIntent = new Intent(context, NewEditTask.class);
-                    editTaskIntent.putExtra("position", position);
-                    editTaskIntent.putExtra("task", result.get(position));
-                    ((Activity) context).startActivityForResult(editTaskIntent, Consts.EDIT_TASK_CODE);
-                    return false;
+                    int id = result.get(position).getID();
+                    String task = result.get(position).getTask();
+                    Toast.makeText(context, "You finished " + task, Toast.LENGTH_LONG).show();
+//                    setTaskStatus(id,Consts.STATUS_DONE)
+
+                    MainActivity main = (MainActivity)context;
+                    main.setTaskList();
+
                 }
             });
-            if (!result.get(position).getStatus().equals(Consts.STATUS_DONE)){
-                holder.btn=(Button) convertView.findViewById(R.id.doneButton);
-                holder.btn.setVisibility(View.VISIBLE);
-                holder.btn.setOnClickListener(new View.OnClickListener() {
-                    @Override
-                    public void onClick(View v) {
 
-                        int id = result.get(position).getID();
-                        String task = result.get(position).getTask();
-                        Toast.makeText(context, "You finished " + task, Toast.LENGTH_LONG).show();
-                        // TODO set task as done
-                        String sql = String.format("UPDATE %s SET %s = '%s' WHERE %s = %d",
-                                TaskContract.TABLE,
-                                TaskContract.Columns.STATUS,
-                                Consts.STATUS_DONE,
-                                TaskContract.Columns._ID,
-                                id);
-
-                        TaskDBHelper helper = new TaskDBHelper(context);
-                        SQLiteDatabase sqlDB = helper.getWritableDatabase();
-                        sqlDB.execSQL(sql);
-
-                        MainActivity main = (MainActivity)context;
-                        main.setTaskList();
-
-                    }
-                });
-            }
         }
         return convertView;
     }

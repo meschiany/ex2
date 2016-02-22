@@ -6,14 +6,17 @@ import android.content.Context;
 import android.content.Intent;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
+import android.graphics.Color;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
+import android.widget.AdapterView;
 import android.widget.Button;
 import android.widget.ListView;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import java.util.ArrayList;
@@ -28,18 +31,30 @@ public class MainActivity extends AppCompatActivity {
     private Button btn;
     private TaskDBHelper helper;
 
+    private String currentStatus = Consts.STATUS_ALL;
+
+    private TextView txtAll;
+    private TextView txtPending;
+
+    private TextView txtPrgs;
+    private Cursor cursor;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
 
         super.onCreate(savedInstanceState);
-
         setContentView(R.layout.activity_main);
+
+        txtAll=(TextView)findViewById(R.id.txtAll);
+        txtPending=(TextView)findViewById(R.id.txtPending);
+        txtPrgs=(TextView)findViewById(R.id.txtPrgs);
 
         myListAdapter = new CustomAdapter(this, prgmNameList);
 
-        setTaskList();
+        setActiveList();
+        refreshLists();
 
-        btn = (Button) findViewById(R.id.fab);
+                btn = (Button) findViewById(R.id.fab);
         btn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -47,12 +62,36 @@ public class MainActivity extends AppCompatActivity {
                 startActivityForResult(newTaskIntent, Consts.NEW_TASK_CODE);
             }
         });
-    }
 
-    public void setTaskList(){
-        prgmNameList.clear();
+        txtPrgs.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                currentStatus = Consts.STATUS_PROGRESS;
+                setActiveList();
+                setTaskList();
+            }
+        });
+        txtPending.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                currentStatus = Consts.STATUS_PENDING;
+                setActiveList();
+                setTaskList();
+            }
+        });
+        txtAll.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                currentStatus = Consts.STATUS_ALL;
+                setActiveList();
+                setTaskList();
+            }
+        });
+
+    }
+    public void getAllTasksFromDB(){
         SQLiteDatabase sqlDB = new TaskDBHelper(this).getWritableDatabase();
-        Cursor cursor = sqlDB.query(TaskContract.TABLE,
+        cursor = sqlDB.query(TaskContract.TABLE,
                 new String[]{TaskContract.Columns.ID,
                         TaskContract.Columns.TASK,
                         TaskContract.Columns.PRIORITY,
@@ -64,6 +103,34 @@ public class MainActivity extends AppCompatActivity {
                         TaskContract.Columns.STATUS
                 },
                 null,null,null,null,null);
+
+    }
+    public void setActiveList(){
+        txtAll.setBackgroundColor(Color.parseColor(Consts.COLOR_MENUBLUE));
+        txtPending.setBackgroundColor(Color.parseColor(Consts.COLOR_MENUBLUE));
+        txtPrgs.setBackgroundColor(Color.parseColor(Consts.COLOR_MENUBLUE));
+        txtAll.setTextColor(Color.BLACK);
+        txtPending.setTextColor(Color.BLACK);
+        txtPrgs.setTextColor(Color.BLACK);
+        switch (currentStatus){
+            case Consts.STATUS_ALL:
+                txtAll.setBackgroundColor(Color.parseColor(Consts.COLOR_LIGHTBLUE));
+                txtAll.setTextColor(Color.WHITE);
+
+                break;
+            case Consts.STATUS_PENDING:
+                txtPending.setBackgroundColor(Color.parseColor(Consts.COLOR_LIGHTBLUE));
+                txtPending.setTextColor(Color.WHITE);
+                break;
+            case Consts.STATUS_PROGRESS:
+                txtPrgs.setBackgroundColor(Color.parseColor(Consts.COLOR_LIGHTBLUE));
+                txtPrgs.setTextColor(Color.WHITE);
+                break;
+        }
+    }
+
+    public void setTaskList(){
+        prgmNameList.clear();
 
         cursor.moveToFirst();
         Task currentTask;
@@ -79,16 +146,27 @@ public class MainActivity extends AppCompatActivity {
                     cursor.getLong(cursor.getColumnIndexOrThrow(TaskContract.Columns.DATE)),
                     cursor.getString(cursor.getColumnIndexOrThrow(TaskContract.Columns.STATUS))
             );
-            prgmNameList.add(currentTask);
+            if (currentStatus.equals(Consts.STATUS_ALL)||currentTask.getStatus().equals(currentStatus)){
+                prgmNameList.add(currentTask);
+            }
+
         }
 
         context=this;
 
         lv=(ListView) findViewById(R.id.list);
         lv.setAdapter(myListAdapter);
+        //TODO
+//        lv.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+//            @Override
+//            public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+//                String item = parent.getItemAtPosition(position).toString();
+//                Toast.makeText(MainActivity.this, "CLICK: " + item, Toast.LENGTH_SHORT).show();
+//            }
+//        });
     }
 
-    public ContentValues setRecordToDB(Intent data){
+    public ContentValues setRecordToDB(Intent data, String status){
         String task=data.getStringExtra("TASK");
         String priority=data.getStringExtra("PRIORITY");
         Double lat = data.getDoubleExtra("LAT", 1);
@@ -105,6 +183,7 @@ public class MainActivity extends AppCompatActivity {
         values.put(TaskContract.Columns.LOCATION, location);
         values.put(TaskContract.Columns.MEMBER, member);
         values.put(TaskContract.Columns.DATE, selectedDate);
+        values.put(TaskContract.Columns.STATUS, status);
 
         return values;
     }
@@ -112,7 +191,6 @@ public class MainActivity extends AppCompatActivity {
     public void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
 
-        Toast.makeText(this, "resultCode: "+resultCode, Toast.LENGTH_LONG).show();
         ContentValues values;
         helper = new TaskDBHelper(MainActivity.this);
         SQLiteDatabase db = helper.getWritableDatabase();
@@ -120,13 +198,12 @@ public class MainActivity extends AppCompatActivity {
             case (Consts.NEW_TASK_CODE) : {
                 if (resultCode == Activity.RESULT_OK) {
 
-                    values = setRecordToDB(data);
-                    values.put(TaskContract.Columns.STATUS,Consts.STATUS_PENDING);
+                    values = setRecordToDB(data,Consts.STATUS_PENDING);
 
                     db.insertWithOnConflict(TaskContract.TABLE, null, values,
                             SQLiteDatabase.CONFLICT_IGNORE);
 
-                    setTaskList();
+                    refreshLists();
                 }
                 break;
             }
@@ -134,16 +211,21 @@ public class MainActivity extends AppCompatActivity {
                 if (resultCode == Activity.RESULT_OK) {
                     int id = data.getIntExtra("ID", 0);
 
-                    values = setRecordToDB(data);
+                    values = setRecordToDB(data,Consts.STATUS_PROGRESS);
 
                     db.update(TaskContract.TABLE, values, TaskContract.Columns.ID + " = "
                             + id, null);
 
-                    setTaskList();
+                    refreshLists();
+
                 }
                 break;
             }
         }
+    }
+    public void refreshLists(){
+        getAllTasksFromDB();
+        setTaskList();
     }
 
     @Override
