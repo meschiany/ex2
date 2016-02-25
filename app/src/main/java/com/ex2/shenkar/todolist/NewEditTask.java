@@ -1,6 +1,7 @@
 package com.ex2.shenkar.todolist;
 
 import android.app.Activity;
+import android.content.Context;
 import android.content.Intent;
 import android.database.sqlite.SQLiteDatabase;
 import android.support.v7.app.AppCompatActivity;
@@ -26,8 +27,12 @@ public class NewEditTask extends AppCompatActivity {
     private Spinner spn_floor;
     private LatLng latlng = new LatLng(0,0);
     private CalendarView selDate;
+    private Button btnDone;
     private int db_id = 0;
     private int position = 0;
+    private String currentStatus = Consts.STATUS_PENDING;
+
+    private Context context;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -38,6 +43,7 @@ public class NewEditTask extends AppCompatActivity {
         selDate = (CalendarView)findViewById(R.id.calendarView);
         btnNewTask=(Button)findViewById(R.id.btnNewTask);
         btnNewTask.setText("New Task");
+        btnDone = (Button)findViewById(R.id.doneButton);
 
 //        Priority Spinner
         spn_priority = (Spinner) findViewById(R.id.spn_priority);
@@ -75,8 +81,17 @@ public class NewEditTask extends AppCompatActivity {
             taskDesk.setText(existingTask.getTask());
             selDate.setDate(existingTask.getDate());
             db_id = existingTask.getID();
-            position = getIntent().getIntExtra("position",position);
+            position = getIntent().getIntExtra("position", position);
             btnNewTask.setText("Update");
+            btnDone.setVisibility(View.VISIBLE);
+
+            if (existingTask.getStatus().equals(Consts.STATUS_DONE)){
+                btnDone.setText("Reopen");
+                currentStatus = Consts.STATUS_DONE;
+            }else{
+                btnDone.setText("DONE");
+                currentStatus = Consts.STATUS_PROGRESS;
+            }
         }
 
         etLoc.setOnClickListener(new View.OnClickListener() {
@@ -93,7 +108,6 @@ public class NewEditTask extends AppCompatActivity {
             public void onClick(View arg0) {
                 Intent intent = new Intent();
                 intent.putExtra("ID", db_id);
-//                intent.putExtra("POSITION", position);
                 intent.putExtra("TASK", taskDesk.getText().toString());
                 intent.putExtra("PRIORITY", spn_priority.getSelectedItem().toString());
                 intent.putExtra("LAT", latlng.latitude);
@@ -102,11 +116,40 @@ public class NewEditTask extends AppCompatActivity {
                 intent.putExtra("MEMBER",spn_member.getSelectedItem().toString());
                 intent.putExtra("FLOOR",spn_floor.getSelectedItem().toString());
                 intent.putExtra("DATE", selDate.getDate());
+                intent.putExtra("STATUS",currentStatus);
                 setResult(Activity.RESULT_OK, intent);
                 finish();
             }
         });
+
+        context = this;
+
+        btnDone.setOnClickListener(new View.OnClickListener(){
+
+            @Override
+            public void onClick(View arg0) {
+                if (!currentStatus.equals(Consts.STATUS_DONE)){
+                    btnDone.setText("Reopen");
+                    currentStatus = Consts.STATUS_DONE;
+                }else{
+                    btnDone.setText("DONE");
+                    currentStatus = Consts.STATUS_PROGRESS;
+                }
+
+//                String sql = String.format("UPDATE %s SET %s = '%s' WHERE %s = %d",
+//                        TaskContract.TABLE,
+//                        TaskContract.Columns.STATUS,
+//                        Consts.STATUS_DONE,
+//                        TaskContract.Columns._ID,
+//                        db_id);
+//                Toast.makeText(context, "asd", Toast.LENGTH_LONG).show();
+//                TaskDBHelper helper = new TaskDBHelper(getApplicationContext());
+//                SQLiteDatabase sqlDB = helper.getWritableDatabase();
+//                sqlDB.execSQL(sql);
+            }
+        });
     }
+
 
     public void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);

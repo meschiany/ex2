@@ -48,7 +48,6 @@ public class CustomAdapter extends BaseAdapter{
 
     public class Holder {
         TextView task;
-        Button btn;
     }
     @Override
     public View getView(final int position, View convertView, ViewGroup parent) {
@@ -62,36 +61,17 @@ public class CustomAdapter extends BaseAdapter{
         holder.task=(TextView) convertView.findViewById(R.id.taskTextView);
 
         holder.task.setText(result.get(position).getTask() + " - " + result.get(position).getStatus());
-        holder.task.setOnLongClickListener(new View.OnLongClickListener() {
+        holder.task.setOnClickListener(new View.OnClickListener() {
             @Override
-            public boolean onLongClick(View v) {
+            public void onClick(View v) {
 
-        Intent editTaskIntent = new Intent(context, NewEditTask.class);
-        editTaskIntent.putExtra("position", position);
-        editTaskIntent.putExtra("task", result.get(position));
-        ((Activity) context).startActivityForResult(editTaskIntent, Consts.EDIT_TASK_CODE);
-        return false;
+                Intent editTaskIntent = new Intent(context, NewEditTask.class);
+                editTaskIntent.putExtra("position", position);
+                editTaskIntent.putExtra("task", result.get(position));
+                ((Activity) context).startActivityForResult(editTaskIntent, Consts.EDIT_TASK_CODE);
+
             }
         });
-        if (!result.get(position).getStatus().equals(Consts.STATUS_DONE)){
-            holder.btn=(Button) convertView.findViewById(R.id.doneButton);
-            holder.btn.setVisibility(View.VISIBLE);
-            holder.btn.setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View v) {
-
-                    int id = result.get(position).getID();
-                    String task = result.get(position).getTask();
-                    Toast.makeText(context, "You finished " + task, Toast.LENGTH_LONG).show();
-//                    setTaskStatus(id,Consts.STATUS_DONE)
-
-                    MainActivity main = (MainActivity)context;
-                    main.setTaskList();
-
-                }
-            });
-
-        }
         return convertView;
     }
 }
