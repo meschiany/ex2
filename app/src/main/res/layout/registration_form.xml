@@ -1,0 +1,52 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    >
+    <TextView
+
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Register"
+        android:gravity="center"
+        android:minHeight="?attr/actionBarSize"
+        android:background="?attr/colorPrimary"
+        android:textColor="#fff"
+        android:textSize="@dimen/header_font_size"
+
+        />
+    <EditText
+        android:id="@+id/regEmail"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:hint="Email"
+        android:maxLines="1"
+
+        />
+    <EditText
+        android:id="@+id/regMobile"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:inputType="textPassword"
+        android:hint="Password"
+        android:maxLines="1"
+        />
+
+    <EditText
+        android:id="@+id/regTeamName"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:hint="Team name"
+        android:maxLines="1"
+        />
+
+    <Button
+        android:id="@+id/regBtn"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Continue"
+        android:layout_gravity="center_horizontal"
+        />
+
+</LinearLayout>
