@@ -4,9 +4,6 @@ import android.content.Context;
 import android.content.SharedPreferences;
 import android.util.Log;
 
-import com.parse.GetCallback;
-import com.parse.ParseObject;
-import com.parse.ParseQuery;
 import com.shenkar.tools.GetRequest;
 import com.shenkar.tools.GetRequestCallback;
 

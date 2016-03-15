@@ -14,7 +14,6 @@ import android.view.View;
 import android.widget.ProgressBar;
 import android.widget.Toast;
 
-import com.parse.Parse;
 import com.shenkar.activity.CreateTeamFragment;
 import com.shenkar.activity.FragmentDrawer;
 import com.shenkar.activity.SettingsFragment;
@@ -46,12 +45,6 @@ public class Welcome extends AppCompatActivity implements FragmentDrawer.Fragmen
 
         // display the first navigation drawer view on app launch
         //displayView(0);
-
-        try {
-            Parse.initialize(this);
-        }catch (Exception e){
-
-        }
 
         // loading...
         loading(true);
