@@ -16,11 +16,45 @@
         android:layout_margin="10dp"
         android:text="@string/add"/>
 
+    <TextView
+        android:layout_width="100dp"
+        android:layout_height="wrap_content"
+        android:textAppearance="?android:attr/textAppearanceMedium"
+        android:text="All Tasks"
+        android:id="@+id/txtAll"
+        android:layout_gravity="left|top"
+        android:textAlignment="center"
+        android:background="#757ddf"
+        android:textColor="#ffffffff" />
+
     <ListView
         android:layout_width="match_parent"
-        android:layout_height="417dp"
+        android:layout_height="376dp"
         android:id="@+id/list"
-        android:layout_weight="1" />
+        android:layout_weight="1"
+        android:layout_gravity="center" />
+
+    <TextView
+        android:layout_width="100dp"
+        android:layout_height="wrap_content"
+        android:textAppearance="?android:attr/textAppearanceMedium"
+        android:text="In Progress"
+        android:id="@+id/txtPrgs"
+        android:layout_gravity="center_horizontal|top"
+        android:textAlignment="center"
+        android:background="#3840a6"
+        android:textColor="#ffffffff" />
+
+    <TextView
+        android:layout_width="100dp"
+        android:layout_height="wrap_content"
+        android:textAppearance="?android:attr/textAppearanceMedium"
+        android:text="Pending"
+        android:id="@+id/txtPending"
+        android:layout_gravity="right|top"
+        android:textAlignment="center"
+        android:background="#3840a6"
+        android:textColor="#ffffff" />
 
 
 </FrameLayout>

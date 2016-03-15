@@ -7,7 +7,7 @@ import android.provider.BaseColumns;
  */
 public class TaskContract {
     public static final String DB_NAME = "com.example.TodoList.db.tasks";
-    public static final int DB_VERSION = 6;
+    public static final int DB_VERSION = 10;
     public static final String TABLE = "tasks";
 
     public class Columns {
@@ -19,6 +19,8 @@ public class TaskContract {
         public static final String LOCATION= "location";
         public static final String MEMBER= "member";
         public static final String DATE= "date";
+        public static final String STATUS= "status";
+        public static final String FLOOR= "FLOOR";
 
         public static final String _ID = BaseColumns._ID;
     }

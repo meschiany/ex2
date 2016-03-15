@@ -48,7 +48,6 @@ public class CustomAdapter extends BaseAdapter{
 
     public class Holder {
         TextView task;
-        Button btn;
     }
     @Override
     public View getView(final int position, View convertView, ViewGroup parent) {
@@ -58,47 +57,19 @@ public class CustomAdapter extends BaseAdapter{
         }
         Holder holder=new Holder();
 
-        if (convertView != null){
-            holder.btn=(Button) convertView.findViewById(R.id.doneButton);
-            holder.task=(TextView) convertView.findViewById(R.id.taskTextView);
-        }
-        holder.task.setText(result.get(position).getTask());
-        holder.task.setOnLongClickListener(new View.OnLongClickListener() {
 
+        holder.task=(TextView) convertView.findViewById(R.id.taskTextView);
+
+        holder.task.setText(result.get(position).getTask() + " - " + result.get(position).getStatus());
+        holder.task.setOnClickListener(new View.OnClickListener() {
             @Override
-            public boolean onLongClick(View v) {
+            public void onClick(View v) {
 
                 Intent editTaskIntent = new Intent(context, NewEditTask.class);
-                Log.d("mesch", String.valueOf(result.get(position).getID()));
                 editTaskIntent.putExtra("position", position);
                 editTaskIntent.putExtra("task", result.get(position));
                 ((Activity) context).startActivityForResult(editTaskIntent, Consts.EDIT_TASK_CODE);
-                return false;
-            }
-        });
 
-        holder.btn.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                Log.d("mesch", result.get(position).getTask());
-
-                String task = result.get(position).getTask();
-                Toast.makeText(context, "You finished " + task, Toast.LENGTH_LONG).show();
-                Log.d("mesch", task);
-
-                String sql = String.format("DELETE FROM %s WHERE %s = '%s'",
-                        TaskContract.TABLE,
-                        TaskContract.Columns.TASK,
-                        task);
-
-
-                TaskDBHelper helper = new TaskDBHelper(context);
-                SQLiteDatabase sqlDB = helper.getWritableDatabase();
-                sqlDB.execSQL(sql);
-
-                result.remove(position);
-
-                notifyDataSetChanged();
             }
         });
         return convertView;

@@ -1,7 +1,9 @@
 package com.ex2.shenkar.todolist;
 
 import android.app.Activity;
+import android.content.Context;
 import android.content.Intent;
+import android.database.sqlite.SQLiteDatabase;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.util.Log;
@@ -22,10 +24,15 @@ public class NewEditTask extends AppCompatActivity {
     private Button btnNewTask;
     private Spinner spn_priority;
     private Spinner spn_member;
+    private Spinner spn_floor;
     private LatLng latlng = new LatLng(0,0);
     private CalendarView selDate;
+    private Button btnDone;
     private int db_id = 0;
     private int position = 0;
+    private String currentStatus = Consts.STATUS_PENDING;
+
+    private Context context;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -36,6 +43,7 @@ public class NewEditTask extends AppCompatActivity {
         selDate = (CalendarView)findViewById(R.id.calendarView);
         btnNewTask=(Button)findViewById(R.id.btnNewTask);
         btnNewTask.setText("New Task");
+        btnDone = (Button)findViewById(R.id.doneButton);
 
 //        Priority Spinner
         spn_priority = (Spinner) findViewById(R.id.spn_priority);
@@ -51,6 +59,13 @@ public class NewEditTask extends AppCompatActivity {
         member_adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
         spn_member.setAdapter(member_adapter);
 
+//      Floor Spinner
+        spn_floor = (Spinner) findViewById(R.id.spn_floor);
+        ArrayAdapter<CharSequence> floor_adapter = ArrayAdapter.createFromResource(this,
+                R.array.floors_array, android.R.layout.simple_spinner_item);
+        floor_adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+        spn_floor.setAdapter(floor_adapter);
+
 
         // check if for edit
         final Task existingTask;
@@ -58,14 +73,25 @@ public class NewEditTask extends AppCompatActivity {
             existingTask = (Task)getIntent().getSerializableExtra("task");
             int spinnerPosition = priority_adapter.getPosition(existingTask.getPriority());
             spn_priority.setSelection(spinnerPosition);
-            etLoc.setText(existingTask.getAddress());
-            taskDesk.setText(existingTask.getTask());
             spinnerPosition = member_adapter.getPosition(existingTask.getMember());
             spn_member.setSelection(spinnerPosition);
+            spinnerPosition = floor_adapter.getPosition(existingTask.getFloor());
+            spn_floor.setSelection(spinnerPosition);
+            etLoc.setText(existingTask.getAddress());
+            taskDesk.setText(existingTask.getTask());
             selDate.setDate(existingTask.getDate());
             db_id = existingTask.getID();
-            position = getIntent().getIntExtra("position",position);
+            position = getIntent().getIntExtra("position", position);
             btnNewTask.setText("Update");
+            btnDone.setVisibility(View.VISIBLE);
+
+            if (existingTask.getStatus().equals(Consts.STATUS_DONE)){
+                btnDone.setText("Reopen");
+                currentStatus = Consts.STATUS_DONE;
+            }else{
+                btnDone.setText("DONE");
+                currentStatus = Consts.STATUS_PROGRESS;
+            }
         }
 
         etLoc.setOnClickListener(new View.OnClickListener() {
@@ -81,32 +107,57 @@ public class NewEditTask extends AppCompatActivity {
             @Override
             public void onClick(View arg0) {
                 Intent intent = new Intent();
-//                id of recrd in db for update
                 intent.putExtra("ID", db_id);
-//                position in the array list for later notify adapter
-                intent.putExtra("POSITION", position);
                 intent.putExtra("TASK", taskDesk.getText().toString());
                 intent.putExtra("PRIORITY", spn_priority.getSelectedItem().toString());
                 intent.putExtra("LAT", latlng.latitude);
                 intent.putExtra("LNG", latlng.longitude);
                 intent.putExtra("LOCATION", etLoc.getText().toString());
                 intent.putExtra("MEMBER",spn_member.getSelectedItem().toString());
+                intent.putExtra("FLOOR",spn_floor.getSelectedItem().toString());
                 intent.putExtra("DATE", selDate.getDate());
+                intent.putExtra("STATUS",currentStatus);
                 setResult(Activity.RESULT_OK, intent);
                 finish();
             }
         });
+
+        context = this;
+
+        btnDone.setOnClickListener(new View.OnClickListener(){
+
+            @Override
+            public void onClick(View arg0) {
+                if (!currentStatus.equals(Consts.STATUS_DONE)){
+                    btnDone.setText("Reopen");
+                    currentStatus = Consts.STATUS_DONE;
+                }else{
+                    btnDone.setText("DONE");
+                    currentStatus = Consts.STATUS_PROGRESS;
+                }
+
+//                String sql = String.format("UPDATE %s SET %s = '%s' WHERE %s = %d",
+//                        TaskContract.TABLE,
+//                        TaskContract.Columns.STATUS,
+//                        Consts.STATUS_DONE,
+//                        TaskContract.Columns._ID,
+//                        db_id);
+//                Toast.makeText(context, "asd", Toast.LENGTH_LONG).show();
+//                TaskDBHelper helper = new TaskDBHelper(getApplicationContext());
+//                SQLiteDatabase sqlDB = helper.getWritableDatabase();
+//                sqlDB.execSQL(sql);
+            }
+        });
     }
+
 
     public void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
         switch(requestCode) {
             case (Consts.GET_LOCATION) : {
                 Long lat = data.getLongExtra("lat",1);
-                Toast.makeText(this, lat.toString() , Toast.LENGTH_LONG).show();
                 Long lng = data.getLongExtra("lng", 1);
                 latlng = new LatLng(lat,lng);
-                Toast.makeText(this,lat.toString(), Toast.LENGTH_LONG).show();
                 etLoc.setText(data.getStringExtra("location"));
             }
         }

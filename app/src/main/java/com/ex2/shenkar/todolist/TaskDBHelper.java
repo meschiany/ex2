@@ -25,7 +25,9 @@ public class TaskDBHelper extends SQLiteOpenHelper {
                                 "%s INTEGER, " + //lnt
                                 "%s TEXT, " + //location
                                 "%s TEXT, " + //member
-                                "%s INTEGER " + //date
+                                "%s INTEGER, " + //date
+                                "%s TEXT, " + //status
+                                "%s TEXT " + //floor
                                     ")", TaskContract.TABLE,
                         TaskContract.Columns.TASK,
                         TaskContract.Columns.PRIORITY,
@@ -33,7 +35,9 @@ public class TaskDBHelper extends SQLiteOpenHelper {
                         TaskContract.Columns.LNG,
                         TaskContract.Columns.LOCATION,
                         TaskContract.Columns.MEMBER,
-                        TaskContract.Columns.DATE
+                        TaskContract.Columns.DATE,
+                        TaskContract.Columns.STATUS,
+                        TaskContract.Columns.FLOOR
                 );
 
         Log.d("TaskDBHelper", "Query to form table: " + sqlQuery);
