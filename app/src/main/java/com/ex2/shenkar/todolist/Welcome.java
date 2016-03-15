@@ -18,6 +18,7 @@ import com.parse.Parse;
 import com.shenkar.activity.CreateTeamFragment;
 import com.shenkar.activity.FragmentDrawer;
 import com.shenkar.activity.SettingsFragment;
+import com.shenkar.activity.TasksFragment;
 import com.shenkar.activity.WelcomeFragement;
 
 import java.util.ArrayList;
@@ -153,6 +154,7 @@ public class Welcome extends AppCompatActivity implements FragmentDrawer.Fragmen
                 case 0:
 
                     title = getString(R.string.task_list);
+                    fragment = new TasksFragment();
                     break;
 
                 /**
@@ -195,6 +197,7 @@ public class Welcome extends AppCompatActivity implements FragmentDrawer.Fragmen
                 case 0:
 
                     title = getString(R.string.task_list);
+                    fragment = new TasksFragment();
                     break;
 
                  /* settings
