@@ -57,6 +57,9 @@ public class TasksFragment extends Fragment {
     private Cursor cursor;
     private Welcome mainActivity;
 
+    private ArrayList<Task> tasks = new ArrayList<Task>();
+
+
 
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
@@ -68,6 +71,7 @@ public class TasksFragment extends Fragment {
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
 
         rootView = inflater.inflate(R.layout.activity_main, container, false);
+        mainActivity = (Welcome) getActivity();
 
         txtAll=(TextView)rootView.findViewById(R.id.txtAll);
         txtPending=(TextView)rootView.findViewById(R.id.txtPending);
@@ -112,16 +116,12 @@ public class TasksFragment extends Fragment {
             }
         });
 
-        mainActivity = (Welcome) getActivity();
-
         return rootView;
     }
 
     public void getAllTasksFromDB(){
-
         int user_id = mainActivity.getUser().getId();
-
-        String query = "MODEL=Tasks&COMMAND=view" + ((mainActivity.getUser().getType() == User.Type.MANAGER) ?
+        String query = "MODEL=TasksAndMembers&COMMAND=view" + ((mainActivity.getUser().getType() == User.Type.MANAGER) ?
                 "&filters[manager_id]="+String.valueOf(user_id) : "&filters[member]="+String.valueOf(user_id));
 
         GetRequest.send(query, getContext(), new GetRequestCallback() {
@@ -130,12 +130,28 @@ public class TasksFragment extends Fragment {
 
                 try {
                     if (jsonObject.getBoolean("status")) {
-
                         JSONArray taskList = jsonObject.getJSONArray("data");
+                        for (int i = 0; i<taskList.length();i++){
+                            JSONObject jo = taskList.getJSONObject(i);
+                            prgmNameList.add(new Task(
+                                            jo.getInt("id"),
+                                            jo.getString("task"),
+                                            jo.getString("priority"),
+                                            jo.getDouble("lat"),
+                                            jo.getDouble("lng"),
+                                            jo.getString("location"),
+                                            jo.getInt("member"),
+                                            jo.getString("member_name"),
+                                            jo.getLong("date"),
+                                            jo.getString("status"),
+                                            jo.getString("floor")
+                                    ));
+                        }
 
+                        myListAdapter.notifyDataSetChanged();
                     }
                 }catch(JSONException e){
-
+                    e.printStackTrace();
                 }
             }
 
@@ -186,25 +202,28 @@ public class TasksFragment extends Fragment {
     }
 
     public void setTaskList(){
-        prgmNameList.clear();
+//        prgmNameList.clear();
 
-        cursor.moveToFirst();
-        Task currentTask;
-        while(cursor.moveToNext()) {
-            currentTask = new Task(
-                    cursor.getInt(cursor.getColumnIndexOrThrow(TaskContract.Columns.ID)),
-                    cursor.getString(cursor.getColumnIndexOrThrow(TaskContract.Columns.TASK)),
-                    cursor.getString(cursor.getColumnIndexOrThrow(TaskContract.Columns.PRIORITY)),
-                    cursor.getDouble(cursor.getColumnIndexOrThrow(TaskContract.Columns.LAT)),
-                    cursor.getDouble(cursor.getColumnIndexOrThrow(TaskContract.Columns.LNG)),
-                    cursor.getString(cursor.getColumnIndexOrThrow(TaskContract.Columns.LOCATION)),
-                    cursor.getString(cursor.getColumnIndexOrThrow(TaskContract.Columns.MEMBER)),
-                    cursor.getLong(cursor.getColumnIndexOrThrow(TaskContract.Columns.DATE)),
-                    cursor.getString(cursor.getColumnIndexOrThrow(TaskContract.Columns.STATUS)),
-                    cursor.getString(cursor.getColumnIndexOrThrow(TaskContract.Columns.FLOOR))
-            );
-            if (currentStatus.equals(Consts.STATUS_ALL)||currentTask.getStatus().equals(currentStatus)){
-                prgmNameList.add(currentTask);
+        mainActivity.getUser().getSyncIntervalDelay();
+
+//        cursor.moveToFirst();
+        for (Task t : prgmNameList){
+//        while(cursor.moveToNext()) {
+//            currentTask = new Task(
+//                    cursor.getInt(cursor.getColumnIndexOrThrow(TaskContract.Columns.ID)),
+//                    cursor.getString(cursor.getColumnIndexOrThrow(TaskContract.Columns.TASK)),
+//                    cursor.getString(cursor.getColumnIndexOrThrow(TaskContract.Columns.PRIORITY)),
+//                    cursor.getDouble(cursor.getColumnIndexOrThrow(TaskContract.Columns.LAT)),
+//                    cursor.getDouble(cursor.getColumnIndexOrThrow(TaskContract.Columns.LNG)),
+//                    cursor.getString(cursor.getColumnIndexOrThrow(TaskContract.Columns.LOCATION)),
+//                    cursor.getString(cursor.getColumnIndexOrThrow(TaskContract.Columns.MEMBER)),
+//                    cursor.getLong(cursor.getColumnIndexOrThrow(TaskContract.Columns.DATE)),
+//                    cursor.getString(cursor.getColumnIndexOrThrow(TaskContract.Columns.STATUS)),
+//                    cursor.getString(cursor.getColumnIndexOrThrow(TaskContract.Columns.FLOOR))
+//            );
+
+            if (currentStatus.equals(Consts.STATUS_ALL)||t.getStatus().equals(currentStatus)){
+                prgmNameList.add(t);
             }
 
         }
@@ -214,30 +233,51 @@ public class TasksFragment extends Fragment {
         lv.setAdapter(myListAdapter);
     }
 
-    public ContentValues setRecordToDB(Intent data){
+    public void setRecordToDB(Intent data){
         String task=data.getStringExtra("TASK");
         String priority=data.getStringExtra("PRIORITY");
         Double lat = data.getDoubleExtra("LAT", 1);
         Double lng = data.getDoubleExtra("LNG", 1);
         String location = data.getStringExtra("LOCATION");
-        String member = data.getStringExtra("MEMBER");
+        String member_id = data.getStringExtra("MEMBER_ID");
         String floor = data.getStringExtra("FLOOR");
         Long selectedDate = data.getLongExtra("DATE", 1);
         String status = data.getStringExtra("STATUS");
 
-        ContentValues values = new ContentValues();
-        values.put(TaskContract.Columns.TASK, task);
-        values.put(TaskContract.Columns.PRIORITY, priority);
-        values.put(TaskContract.Columns.LAT, lat);
-        values.put(TaskContract.Columns.LNG, lng);
-        values.put(TaskContract.Columns.LOCATION, location);
-        values.put(TaskContract.Columns.MEMBER, member);
-        values.put(TaskContract.Columns.FLOOR, floor);
-        values.put(TaskContract.Columns.DATE, selectedDate);
-        values.put(TaskContract.Columns.STATUS, status);
 
+        String query = "MODEL=Tasks&COMMAND=add" + "&attrs[manager_id]="+String.valueOf(mainActivity.getUser().getId()) +
+                        "&attrs[task]="+task+
+                        "&attrs[member]="+member_id+
+                        "&attrs[priority]="+priority+
+                        "&attrs[lat]="+lat+
+                        "&attrs[lng]="+lng+
+                        "&attrs[location]="+location+
+                        "&attrs[date]="+selectedDate+
+                        "&attrs[status]="+status+
+                        "&attrs[floor]="+floor;
 
-        return values;
+        GetRequest.send(query, getContext(), new GetRequestCallback() {
+            @Override
+            public void success(JSONObject jsonObject) {
+
+            }
+
+            @Override
+            public void failed(Exception error) {
+
+            }
+        });
+//        ContentValues values = new ContentValues();
+//        values.put(TaskContract.Columns.TASK, task);
+//        values.put(TaskContract.Columns.PRIORITY, priority);
+//        values.put(TaskContract.Columns.LAT, lat);
+//        values.put(TaskContract.Columns.LNG, lng);
+//        values.put(TaskContract.Columns.LOCATION, location);
+//        values.put(TaskContract.Columns.MEMBER, member);
+//        values.put(TaskContract.Columns.FLOOR, floor);
+//        values.put(TaskContract.Columns.DATE, selectedDate);
+//        values.put(TaskContract.Columns.STATUS, status);
+//        return values;
     }
 
     public void onActivityResult(int requestCode, int resultCode, Intent data) {
@@ -247,13 +287,14 @@ public class TasksFragment extends Fragment {
         helper = new TaskDBHelper(getActivity());
         SQLiteDatabase db = helper.getWritableDatabase();
 
-        values = setRecordToDB(data);
+//        values = setRecordToDB(data);
+        setRecordToDB(data);
         switch(requestCode) {
             case (Consts.NEW_TASK_CODE) : {
                 if (resultCode == Activity.RESULT_OK) {
 
-                    db.insertWithOnConflict(TaskContract.TABLE, null, values,
-                            SQLiteDatabase.CONFLICT_IGNORE);
+//                    db.insertWithOnConflict(TaskContract.TABLE, null, values,
+//                            SQLiteDatabase.CONFLICT_IGNORE);
 
                     refreshLists();
                 }
@@ -263,8 +304,8 @@ public class TasksFragment extends Fragment {
                 if (resultCode == Activity.RESULT_OK) {
                     int id = data.getIntExtra("ID", 0);
 
-                    db.update(TaskContract.TABLE, values, TaskContract.Columns.ID + " = "
-                            + id, null);
+//                    db.update(TaskContract.TABLE, values, TaskContract.Columns.ID + " = "
+//                            + id, null);
 
                     refreshLists();
 

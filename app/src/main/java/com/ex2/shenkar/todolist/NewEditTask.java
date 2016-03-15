@@ -107,8 +107,8 @@ public class NewEditTask extends AppCompatActivity {
             existingTask = (Task)getIntent().getSerializableExtra("task");
             int spinnerPosition = priority_adapter.getPosition(existingTask.getPriority());
             spn_priority.setSelection(spinnerPosition);
-            spinnerPosition = member_adapter.getPosition(existingTask.getMember());
-            spn_member.setSelection(spinnerPosition);
+//            spinnerPosition = member_adapter.getPosition(existingTask.getMember());
+//            spn_member.setSelection(spinnerPosition);
             spinnerPosition = floor_adapter.getPosition(existingTask.getFloor());
             spn_floor.setSelection(spinnerPosition);
             etLoc.setText(existingTask.getAddress());
