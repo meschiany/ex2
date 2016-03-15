@@ -24,7 +24,7 @@ public class CustomAdapter extends BaseAdapter{
 
     private static LayoutInflater inflater=null;
 
-    public CustomAdapter(MainActivity mainActivity, ArrayList<Task> prgmNameList) {
+    public CustomAdapter(Context mainActivity, ArrayList<Task> prgmNameList) {
         result=prgmNameList;
         context=mainActivity;
 

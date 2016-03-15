@@ -17,6 +17,9 @@ import android.widget.Spinner;
 import android.widget.Toast;
 
 import com.google.android.gms.maps.model.LatLng;
+import com.shenkar.tools.GetRequest;
+
+import java.util.ArrayList;
 
 public class NewEditTask extends AppCompatActivity {
     private EditText taskDesk;
@@ -28,6 +31,7 @@ public class NewEditTask extends AppCompatActivity {
     private LatLng latlng = new LatLng(0,0);
     private CalendarView selDate;
     private Button btnDone;
+    ArrayAdapter<CharSequence> member_adapter;
     private int db_id = 0;
     private int position = 0;
     private String currentStatus = Consts.STATUS_PENDING;
@@ -45,6 +49,38 @@ public class NewEditTask extends AppCompatActivity {
         btnNewTask.setText("New Task");
         btnDone = (Button)findViewById(R.id.doneButton);
 
+        RegisteredUser.getUser(this, new RegisteredUserCallback() {
+            @Override
+            public void successful(RegisteredUser user) {
+
+                if (user.getType() == User.Type.MANAGER) {
+                    Team.getTeam(user.getTeamId(), NewEditTask.this, new TeamLoadCallback() {
+
+                        @Override
+                        public void successful(Team team) {
+
+                            ArrayList<RegisteredUser> teamUsers = team.getTeamMates();
+
+                            member_adapter = ArrayAdapter.createFromResource(NewEditTask.this,
+                                    R.array.members_array, android.R.layout.simple_spinner_item);
+                            spn_member.setAdapter(member_adapter);
+                            member_adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+                        }
+
+                        @Override
+                        public void failed() {
+
+                        }
+                    });
+                }
+            }
+
+            @Override
+            public void failed() {
+
+            }
+        });
+
 //        Priority Spinner
         spn_priority = (Spinner) findViewById(R.id.spn_priority);
         ArrayAdapter<CharSequence> priority_adapter = ArrayAdapter.createFromResource(this,
@@ -54,10 +90,8 @@ public class NewEditTask extends AppCompatActivity {
 
 //      Members Spinner
         spn_member = (Spinner) findViewById(R.id.member);
-        ArrayAdapter<CharSequence> member_adapter = ArrayAdapter.createFromResource(this,
-                R.array.members_array, android.R.layout.simple_spinner_item);
-        member_adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
-        spn_member.setAdapter(member_adapter);
+
+
 
 //      Floor Spinner
         spn_floor = (Spinner) findViewById(R.id.spn_floor);
