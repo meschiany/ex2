@@ -63,9 +63,12 @@
         android:layout_height="wrap_content"
         android:id="@+id/calendarView"
         android:longClickable="false"
-        android:nestedScrollingEnabled="false"
         android:layout_above="@+id/btnNewTask"
         android:layout_below="@+id/taskDesk" />
+
+    <!--<DatePicker-->
+        <!--android:layout_width="fill_parent"-->
+        <!--android:layout_height="wrap_content"></DatePicker>-->
 
     <Button
         android:layout_width="wrap_content"

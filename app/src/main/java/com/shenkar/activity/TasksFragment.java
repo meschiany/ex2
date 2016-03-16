@@ -34,6 +34,8 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.util.ArrayList;
+import java.util.Timer;
+import java.util.TimerTask;
 
 /**
  * Created by shnizle on 3/15/2016.
@@ -44,7 +46,7 @@ public class TasksFragment extends Fragment {
     private ListView lv;
     private Context context;
     private CustomAdapter myListAdapter;
-    private ArrayList<Task> prgmNameList = new ArrayList<Task>();
+    private ArrayList<Task> adapterTasks = new ArrayList<Task>();
     private Button btn;
     private TaskDBHelper helper;
 
@@ -54,12 +56,12 @@ public class TasksFragment extends Fragment {
     private TextView txtPending;
 
     private TextView txtPrgs;
-    private Cursor cursor;
     private Welcome mainActivity;
 
     private ArrayList<Task> tasks = new ArrayList<Task>();
 
 
+//    private Cursor cursor;
 
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
@@ -77,10 +79,20 @@ public class TasksFragment extends Fragment {
         txtPending=(TextView)rootView.findViewById(R.id.txtPending);
         txtPrgs=(TextView)rootView.findViewById(R.id.txtPrgs);
 
-        myListAdapter = new CustomAdapter(getActivity(), prgmNameList);
+        myListAdapter = new CustomAdapter(getActivity(), adapterTasks);
+
+        int refreshInterval = mainActivity.getUser().getSyncIntervalDelay();
 
         setActiveList();
-        refreshLists();
+
+        new Timer().scheduleAtFixedRate(new TimerTask() {
+            @Override
+            public void run() {
+                getAllTasksFromDB();
+            }
+        }, 0, refreshInterval);
+
+        getAllTasksFromDB();
 
         btn = (Button) rootView.findViewById(R.id.fab);
         btn.setOnClickListener(new View.OnClickListener() {
@@ -131,26 +143,26 @@ public class TasksFragment extends Fragment {
                 try {
                     if (jsonObject.getBoolean("status")) {
                         JSONArray taskList = jsonObject.getJSONArray("data");
-                        for (int i = 0; i<taskList.length();i++){
+                        for (int i = 0; i < taskList.length(); i++) {
                             JSONObject jo = taskList.getJSONObject(i);
-                            prgmNameList.add(new Task(
-                                            jo.getInt("id"),
-                                            jo.getString("task"),
-                                            jo.getString("priority"),
-                                            jo.getDouble("lat"),
-                                            jo.getDouble("lng"),
-                                            jo.getString("location"),
-                                            jo.getInt("member"),
-                                            jo.getString("member_name"),
-                                            jo.getLong("date"),
-                                            jo.getString("status"),
-                                            jo.getString("floor")
-                                    ));
+                            tasks.add(new Task(
+                                    jo.getInt("id"),
+                                    jo.getString("task"),
+                                    jo.getString("priority"),
+                                    jo.getDouble("lat"),
+                                    jo.getDouble("lng"),
+                                    jo.getString("location"),
+                                    jo.getInt("member"),
+                                    jo.getString("member_name"),
+                                    jo.getLong("date"),
+                                    jo.getString("status"),
+                                    jo.getString("floor")
+                            ));
                         }
 
-                        myListAdapter.notifyDataSetChanged();
+                        setTaskList();
                     }
-                }catch(JSONException e){
+                } catch (JSONException e) {
                     e.printStackTrace();
                 }
             }
@@ -202,12 +214,9 @@ public class TasksFragment extends Fragment {
     }
 
     public void setTaskList(){
-//        prgmNameList.clear();
-
-        mainActivity.getUser().getSyncIntervalDelay();
-
+        adapterTasks.clear();
 //        cursor.moveToFirst();
-        for (Task t : prgmNameList){
+        for (Task t : tasks){
 //        while(cursor.moveToNext()) {
 //            currentTask = new Task(
 //                    cursor.getInt(cursor.getColumnIndexOrThrow(TaskContract.Columns.ID)),
@@ -223,11 +232,11 @@ public class TasksFragment extends Fragment {
 //            );
 
             if (currentStatus.equals(Consts.STATUS_ALL)||t.getStatus().equals(currentStatus)){
-                prgmNameList.add(t);
+                adapterTasks.add(t);
             }
 
         }
-
+        myListAdapter.notifyDataSetChanged();
         context=getContext();
         lv=(ListView) rootView.findViewById(R.id.list);
         lv.setAdapter(myListAdapter);
@@ -296,7 +305,7 @@ public class TasksFragment extends Fragment {
 //                    db.insertWithOnConflict(TaskContract.TABLE, null, values,
 //                            SQLiteDatabase.CONFLICT_IGNORE);
 
-                    refreshLists();
+                    getAllTasksFromDB();
                 }
                 break;
             }
@@ -307,15 +316,11 @@ public class TasksFragment extends Fragment {
 //                    db.update(TaskContract.TABLE, values, TaskContract.Columns.ID + " = "
 //                            + id, null);
 
-                    refreshLists();
+                    getAllTasksFromDB();
 
                 }
                 break;
             }
         }
-    }
-    public void refreshLists(){
-        getAllTasksFromDB();
-        setTaskList();
     }
 }
