@@ -20,6 +20,7 @@ import com.google.android.gms.maps.model.LatLng;
 import com.shenkar.tools.GetRequest;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 
 public class NewEditTask extends AppCompatActivity {
     private EditText taskDesk;
@@ -31,10 +32,11 @@ public class NewEditTask extends AppCompatActivity {
     private LatLng latlng = new LatLng(0,0);
     private CalendarView selDate;
     private Button btnDone;
-    ArrayAdapter<CharSequence> member_adapter;
+    ArrayAdapter<String> member_adapter;
     private int db_id = 0;
     private int position = 0;
     private String currentStatus = Consts.STATUS_PENDING;
+    private HashMap userMailId = new HashMap();
 
     private Context context;
 
@@ -58,11 +60,16 @@ public class NewEditTask extends AppCompatActivity {
 
                         @Override
                         public void successful(Team team) {
+                            ArrayList members_array = new ArrayList();
 
-                            ArrayList<RegisteredUser> teamUsers = team.getTeamMates();
+                            for (RegisteredUser u : team.getTeamMates()){
+                                members_array.add(u.getEmail());
+                                userMailId.put(u.getEmail(),u.getId());
+                            }
 
-                            member_adapter = ArrayAdapter.createFromResource(NewEditTask.this,
-                                    R.array.members_array, android.R.layout.simple_spinner_item);
+                            member_adapter = new ArrayAdapter<String>(NewEditTask.this,
+                                    android.R.layout.simple_spinner_item, members_array);
+
                             spn_member.setAdapter(member_adapter);
                             member_adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
                         }
@@ -147,7 +154,7 @@ public class NewEditTask extends AppCompatActivity {
                 intent.putExtra("LAT", latlng.latitude);
                 intent.putExtra("LNG", latlng.longitude);
                 intent.putExtra("LOCATION", etLoc.getText().toString());
-                intent.putExtra("MEMBER",spn_member.getSelectedItem().toString());
+                intent.putExtra("MEMBER_ID",userMailId.get(spn_member.getSelectedItem().toString()).toString());
                 intent.putExtra("FLOOR",spn_floor.getSelectedItem().toString());
                 intent.putExtra("DATE", selDate.getDate());
                 intent.putExtra("STATUS",currentStatus);

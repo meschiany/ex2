@@ -10,6 +10,7 @@ import android.graphics.Color;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -81,7 +82,7 @@ public class TasksFragment extends Fragment {
 
         myListAdapter = new CustomAdapter(getActivity(), adapterTasks);
 
-        int refreshInterval = mainActivity.getUser().getSyncIntervalDelay();
+        int refreshInterval = mainActivity.getUser().getSyncIntervalDelay()*10000;
 
         setActiveList();
 
@@ -142,6 +143,7 @@ public class TasksFragment extends Fragment {
 
                 try {
                     if (jsonObject.getBoolean("status")) {
+                        tasks.clear();
                         JSONArray taskList = jsonObject.getJSONArray("data");
                         for (int i = 0; i < taskList.length(); i++) {
                             JSONObject jo = taskList.getJSONObject(i);
@@ -173,20 +175,20 @@ public class TasksFragment extends Fragment {
             }
         });
 
-        SQLiteDatabase sqlDB = new TaskDBHelper(getActivity()).getWritableDatabase();
-        cursor = sqlDB.query(TaskContract.TABLE,
-                new String[]{TaskContract.Columns.ID,
-                        TaskContract.Columns.TASK,
-                        TaskContract.Columns.PRIORITY,
-                        TaskContract.Columns.LAT,
-                        TaskContract.Columns.LNG,
-                        TaskContract.Columns.LOCATION,
-                        TaskContract.Columns.MEMBER,
-                        TaskContract.Columns.DATE,
-                        TaskContract.Columns.STATUS,
-                        TaskContract.Columns.FLOOR
-                },
-                null,null,null,null,null);
+//        SQLiteDatabase sqlDB = new TaskDBHelper(getActivity()).getWritableDatabase();
+//        cursor = sqlDB.query(TaskContract.TABLE,
+//                new String[]{TaskContract.Columns.ID,
+//                        TaskContract.Columns.TASK,
+//                        TaskContract.Columns.PRIORITY,
+//                        TaskContract.Columns.LAT,
+//                        TaskContract.Columns.LNG,
+//                        TaskContract.Columns.LOCATION,
+//                        TaskContract.Columns.MEMBER,
+//                        TaskContract.Columns.DATE,
+//                        TaskContract.Columns.STATUS,
+//                        TaskContract.Columns.FLOOR
+//                },
+//                null,null,null,null,null);
 
     }
     public void setActiveList(){
@@ -264,7 +266,7 @@ public class TasksFragment extends Fragment {
                         "&attrs[date]="+selectedDate+
                         "&attrs[status]="+status+
                         "&attrs[floor]="+floor;
-
+        Log.d("mesch", query);
         GetRequest.send(query, getContext(), new GetRequestCallback() {
             @Override
             public void success(JSONObject jsonObject) {
