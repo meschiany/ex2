@@ -3,9 +3,6 @@ package com.ex2.shenkar.todolist;
 import android.content.Context;
 import android.util.Log;
 
-import com.parse.GetCallback;
-import com.parse.ParseObject;
-import com.parse.ParseQuery;
 import com.shenkar.tools.GetRequest;
 import com.shenkar.tools.GetRequestCallback;
 

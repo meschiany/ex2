@@ -10,6 +10,7 @@ import android.graphics.Color;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -34,6 +35,8 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.util.ArrayList;
+import java.util.Timer;
+import java.util.TimerTask;
 
 /**
  * Created by shnizle on 3/15/2016.
@@ -44,7 +47,7 @@ public class TasksFragment extends Fragment {
     private ListView lv;
     private Context context;
     private CustomAdapter myListAdapter;
-    private ArrayList<Task> prgmNameList = new ArrayList<Task>();
+    private ArrayList<Task> adapterTasks = new ArrayList<Task>();
     private Button btn;
     private TaskDBHelper helper;
 
@@ -54,9 +57,12 @@ public class TasksFragment extends Fragment {
     private TextView txtPending;
 
     private TextView txtPrgs;
-    private Cursor cursor;
     private Welcome mainActivity;
 
+    private ArrayList<Task> tasks = new ArrayList<Task>();
+
+
+//    private Cursor cursor;
 
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
@@ -68,15 +74,26 @@ public class TasksFragment extends Fragment {
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
 
         rootView = inflater.inflate(R.layout.activity_main, container, false);
+        mainActivity = (Welcome) getActivity();
 
         txtAll=(TextView)rootView.findViewById(R.id.txtAll);
         txtPending=(TextView)rootView.findViewById(R.id.txtPending);
         txtPrgs=(TextView)rootView.findViewById(R.id.txtPrgs);
 
-        myListAdapter = new CustomAdapter(getActivity(), prgmNameList);
+        myListAdapter = new CustomAdapter(getActivity(), adapterTasks);
+
+        int refreshInterval = mainActivity.getUser().getSyncIntervalDelay()*10000;
 
         setActiveList();
-        refreshLists();
+
+        new Timer().scheduleAtFixedRate(new TimerTask() {
+            @Override
+            public void run() {
+                getAllTasksFromDB();
+            }
+        }, 0, refreshInterval);
+
+        getAllTasksFromDB();
 
         btn = (Button) rootView.findViewById(R.id.fab);
         btn.setOnClickListener(new View.OnClickListener() {
@@ -112,16 +129,12 @@ public class TasksFragment extends Fragment {
             }
         });
 
-        mainActivity = (Welcome) getActivity();
-
         return rootView;
     }
 
     public void getAllTasksFromDB(){
-
         int user_id = mainActivity.getUser().getId();
-
-        String query = "MODEL=Tasks&COMMAND=view" + ((mainActivity.getUser().getType() == User.Type.MANAGER) ?
+        String query = "MODEL=TasksAndMembers&COMMAND=view" + ((mainActivity.getUser().getType() == User.Type.MANAGER) ?
                 "&filters[manager_id]="+String.valueOf(user_id) : "&filters[member]="+String.valueOf(user_id));
 
         GetRequest.send(query, getContext(), new GetRequestCallback() {
@@ -130,12 +143,29 @@ public class TasksFragment extends Fragment {
 
                 try {
                     if (jsonObject.getBoolean("status")) {
-
+                        tasks.clear();
                         JSONArray taskList = jsonObject.getJSONArray("data");
+                        for (int i = 0; i < taskList.length(); i++) {
+                            JSONObject jo = taskList.getJSONObject(i);
+                            tasks.add(new Task(
+                                    jo.getInt("id"),
+                                    jo.getString("task"),
+                                    jo.getString("priority"),
+                                    jo.getDouble("lat"),
+                                    jo.getDouble("lng"),
+                                    jo.getString("location"),
+                                    jo.getInt("member"),
+                                    jo.getString("member_name"),
+                                    jo.getLong("date"),
+                                    jo.getString("status"),
+                                    jo.getString("floor")
+                            ));
+                        }
 
+                        setTaskList();
                     }
-                }catch(JSONException e){
-
+                } catch (JSONException e) {
+                    e.printStackTrace();
                 }
             }
 
@@ -145,20 +175,20 @@ public class TasksFragment extends Fragment {
             }
         });
 
-        SQLiteDatabase sqlDB = new TaskDBHelper(getActivity()).getWritableDatabase();
-        cursor = sqlDB.query(TaskContract.TABLE,
-                new String[]{TaskContract.Columns.ID,
-                        TaskContract.Columns.TASK,
-                        TaskContract.Columns.PRIORITY,
-                        TaskContract.Columns.LAT,
-                        TaskContract.Columns.LNG,
-                        TaskContract.Columns.LOCATION,
-                        TaskContract.Columns.MEMBER,
-                        TaskContract.Columns.DATE,
-                        TaskContract.Columns.STATUS,
-                        TaskContract.Columns.FLOOR
-                },
-                null,null,null,null,null);
+//        SQLiteDatabase sqlDB = new TaskDBHelper(getActivity()).getWritableDatabase();
+//        cursor = sqlDB.query(TaskContract.TABLE,
+//                new String[]{TaskContract.Columns.ID,
+//                        TaskContract.Columns.TASK,
+//                        TaskContract.Columns.PRIORITY,
+//                        TaskContract.Columns.LAT,
+//                        TaskContract.Columns.LNG,
+//                        TaskContract.Columns.LOCATION,
+//                        TaskContract.Columns.MEMBER,
+//                        TaskContract.Columns.DATE,
+//                        TaskContract.Columns.STATUS,
+//                        TaskContract.Columns.FLOOR
+//                },
+//                null,null,null,null,null);
 
     }
     public void setActiveList(){
@@ -186,58 +216,79 @@ public class TasksFragment extends Fragment {
     }
 
     public void setTaskList(){
-        prgmNameList.clear();
+        adapterTasks.clear();
+//        cursor.moveToFirst();
+        for (Task t : tasks){
+//        while(cursor.moveToNext()) {
+//            currentTask = new Task(
+//                    cursor.getInt(cursor.getColumnIndexOrThrow(TaskContract.Columns.ID)),
+//                    cursor.getString(cursor.getColumnIndexOrThrow(TaskContract.Columns.TASK)),
+//                    cursor.getString(cursor.getColumnIndexOrThrow(TaskContract.Columns.PRIORITY)),
+//                    cursor.getDouble(cursor.getColumnIndexOrThrow(TaskContract.Columns.LAT)),
+//                    cursor.getDouble(cursor.getColumnIndexOrThrow(TaskContract.Columns.LNG)),
+//                    cursor.getString(cursor.getColumnIndexOrThrow(TaskContract.Columns.LOCATION)),
+//                    cursor.getString(cursor.getColumnIndexOrThrow(TaskContract.Columns.MEMBER)),
+//                    cursor.getLong(cursor.getColumnIndexOrThrow(TaskContract.Columns.DATE)),
+//                    cursor.getString(cursor.getColumnIndexOrThrow(TaskContract.Columns.STATUS)),
+//                    cursor.getString(cursor.getColumnIndexOrThrow(TaskContract.Columns.FLOOR))
+//            );
 
-        cursor.moveToFirst();
-        Task currentTask;
-        while(cursor.moveToNext()) {
-            currentTask = new Task(
-                    cursor.getInt(cursor.getColumnIndexOrThrow(TaskContract.Columns.ID)),
-                    cursor.getString(cursor.getColumnIndexOrThrow(TaskContract.Columns.TASK)),
-                    cursor.getString(cursor.getColumnIndexOrThrow(TaskContract.Columns.PRIORITY)),
-                    cursor.getDouble(cursor.getColumnIndexOrThrow(TaskContract.Columns.LAT)),
-                    cursor.getDouble(cursor.getColumnIndexOrThrow(TaskContract.Columns.LNG)),
-                    cursor.getString(cursor.getColumnIndexOrThrow(TaskContract.Columns.LOCATION)),
-                    cursor.getString(cursor.getColumnIndexOrThrow(TaskContract.Columns.MEMBER)),
-                    cursor.getLong(cursor.getColumnIndexOrThrow(TaskContract.Columns.DATE)),
-                    cursor.getString(cursor.getColumnIndexOrThrow(TaskContract.Columns.STATUS)),
-                    cursor.getString(cursor.getColumnIndexOrThrow(TaskContract.Columns.FLOOR))
-            );
-            if (currentStatus.equals(Consts.STATUS_ALL)||currentTask.getStatus().equals(currentStatus)){
-                prgmNameList.add(currentTask);
+            if (currentStatus.equals(Consts.STATUS_ALL)||t.getStatus().equals(currentStatus)){
+                adapterTasks.add(t);
             }
 
         }
-
+        myListAdapter.notifyDataSetChanged();
         context=getContext();
         lv=(ListView) rootView.findViewById(R.id.list);
         lv.setAdapter(myListAdapter);
     }
 
-    public ContentValues setRecordToDB(Intent data){
+    public void setRecordToDB(Intent data){
         String task=data.getStringExtra("TASK");
         String priority=data.getStringExtra("PRIORITY");
         Double lat = data.getDoubleExtra("LAT", 1);
         Double lng = data.getDoubleExtra("LNG", 1);
         String location = data.getStringExtra("LOCATION");
-        String member = data.getStringExtra("MEMBER");
+        String member_id = data.getStringExtra("MEMBER_ID");
         String floor = data.getStringExtra("FLOOR");
         Long selectedDate = data.getLongExtra("DATE", 1);
         String status = data.getStringExtra("STATUS");
 
-        ContentValues values = new ContentValues();
-        values.put(TaskContract.Columns.TASK, task);
-        values.put(TaskContract.Columns.PRIORITY, priority);
-        values.put(TaskContract.Columns.LAT, lat);
-        values.put(TaskContract.Columns.LNG, lng);
-        values.put(TaskContract.Columns.LOCATION, location);
-        values.put(TaskContract.Columns.MEMBER, member);
-        values.put(TaskContract.Columns.FLOOR, floor);
-        values.put(TaskContract.Columns.DATE, selectedDate);
-        values.put(TaskContract.Columns.STATUS, status);
 
+        String query = "MODEL=Tasks&COMMAND=add" + "&attrs[manager_id]="+String.valueOf(mainActivity.getUser().getId()) +
+                        "&attrs[task]="+task+
+                        "&attrs[member]="+member_id+
+                        "&attrs[priority]="+priority+
+                        "&attrs[lat]="+lat+
+                        "&attrs[lng]="+lng+
+                        "&attrs[location]="+location+
+                        "&attrs[date]="+selectedDate+
+                        "&attrs[status]="+status+
+                        "&attrs[floor]="+floor;
+        Log.d("mesch", query);
+        GetRequest.send(query, getContext(), new GetRequestCallback() {
+            @Override
+            public void success(JSONObject jsonObject) {
 
-        return values;
+            }
+
+            @Override
+            public void failed(Exception error) {
+
+            }
+        });
+//        ContentValues values = new ContentValues();
+//        values.put(TaskContract.Columns.TASK, task);
+//        values.put(TaskContract.Columns.PRIORITY, priority);
+//        values.put(TaskContract.Columns.LAT, lat);
+//        values.put(TaskContract.Columns.LNG, lng);
+//        values.put(TaskContract.Columns.LOCATION, location);
+//        values.put(TaskContract.Columns.MEMBER, member);
+//        values.put(TaskContract.Columns.FLOOR, floor);
+//        values.put(TaskContract.Columns.DATE, selectedDate);
+//        values.put(TaskContract.Columns.STATUS, status);
+//        return values;
     }
 
     public void onActivityResult(int requestCode, int resultCode, Intent data) {
@@ -247,15 +298,16 @@ public class TasksFragment extends Fragment {
         helper = new TaskDBHelper(getActivity());
         SQLiteDatabase db = helper.getWritableDatabase();
 
-        values = setRecordToDB(data);
+//        values = setRecordToDB(data);
+        setRecordToDB(data);
         switch(requestCode) {
             case (Consts.NEW_TASK_CODE) : {
                 if (resultCode == Activity.RESULT_OK) {
 
-                    db.insertWithOnConflict(TaskContract.TABLE, null, values,
-                            SQLiteDatabase.CONFLICT_IGNORE);
+//                    db.insertWithOnConflict(TaskContract.TABLE, null, values,
+//                            SQLiteDatabase.CONFLICT_IGNORE);
 
-                    refreshLists();
+                    getAllTasksFromDB();
                 }
                 break;
             }
@@ -263,18 +315,14 @@ public class TasksFragment extends Fragment {
                 if (resultCode == Activity.RESULT_OK) {
                     int id = data.getIntExtra("ID", 0);
 
-                    db.update(TaskContract.TABLE, values, TaskContract.Columns.ID + " = "
-                            + id, null);
+//                    db.update(TaskContract.TABLE, values, TaskContract.Columns.ID + " = "
+//                            + id, null);
 
-                    refreshLists();
+                    getAllTasksFromDB();
 
                 }
                 break;
             }
         }
-    }
-    public void refreshLists(){
-        getAllTasksFromDB();
-        setTaskList();
     }
 }

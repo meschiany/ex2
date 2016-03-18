@@ -2,10 +2,7 @@ package com.ex2.shenkar.todolist;
 
 import android.content.Context;
 
-import com.parse.Parse;
-import com.parse.ParseException;
-import com.parse.ParseObject;
-import com.parse.SaveCallback;
+
 import com.shenkar.tools.GetRequest;
 import com.shenkar.tools.GetRequestCallback;
 

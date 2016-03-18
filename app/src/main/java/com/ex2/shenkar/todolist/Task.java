@@ -11,7 +11,8 @@ public class Task implements Serializable {
     private double lat;
     private double lng;
     private String address;
-    private String member;
+    private int member_id;
+    private String member_name;
     private Long date;
     private String status;
     private String floor;
@@ -19,14 +20,31 @@ public class Task implements Serializable {
     public Task() {
     }
 
-    public Task(int ID, String task, String priority, double lat, double lng, String address, String member, Long date, String status, String floor) {
+    public String getMember_name() {
+        return member_name;
+    }
+
+    public void setMember_name(String member_name) {
+        this.member_name = member_name;
+    }
+
+    public int getMember_id() {
+        return member_id;
+    }
+
+    public void setMember_id(int member_id) {
+        this.member_id = member_id;
+    }
+
+    public Task(int ID, String task, String priority, double lat, double lng, String address, int member_id, String member_name, Long date, String status, String floor) {
         this.ID = ID;
         this.task = task;
         this.priority = priority;
         this.lat = lat;
         this.lat = lng;
         this.address = address;
-        this.member = member;
+        this.member_id = member_id;
+        this.member_name = member_name;
         this.date = date;
         this.status = status;
         this.floor = floor;
@@ -92,14 +110,6 @@ public class Task implements Serializable {
 
     public void setAddress(String address) {
         this.address = address;
-    }
-
-    public String getMember() {
-        return member;
-    }
-
-    public void setMember(String member) {
-        this.member = member;
     }
 
     public String getStatus() {

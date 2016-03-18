@@ -1,7 +1,5 @@
 package com.shenkar.activity;
 
-import android.app.Activity;
-import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.os.Build;
 import android.os.Bundle;
@@ -9,20 +7,16 @@ import android.support.design.widget.Snackbar;
 import android.support.v4.content.ContextCompat;
 import android.text.Editable;
 import android.text.TextWatcher;
-import android.view.KeyEvent;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ListView;
-import android.widget.Toast;
 
 import com.ex2.shenkar.todolist.Contact;
-import com.ex2.shenkar.todolist.MainActivity;
 import com.ex2.shenkar.todolist.R;
 import com.ex2.shenkar.todolist.RegisteredUser;
-import com.ex2.shenkar.todolist.RegisteredUserCallback;
 import com.ex2.shenkar.todolist.SelectContactCallback;
 import com.ex2.shenkar.todolist.SelectContactDialog;
 import com.ex2.shenkar.todolist.Team;
