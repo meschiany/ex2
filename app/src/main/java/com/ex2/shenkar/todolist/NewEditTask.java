@@ -3,23 +3,22 @@ package com.ex2.shenkar.todolist;
 import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
-import android.database.sqlite.SQLiteDatabase;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
-import android.util.Log;
 import android.view.Menu;
 import android.view.View;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
-import android.widget.CalendarView;
+import android.widget.DatePicker;
 import android.widget.EditText;
 import android.widget.Spinner;
-import android.widget.Toast;
 
 import com.google.android.gms.maps.model.LatLng;
-import com.shenkar.tools.GetRequest;
 
 import java.util.ArrayList;
+import java.util.Calendar;
+import java.util.Date;
+import java.util.GregorianCalendar;
 import java.util.HashMap;
 
 public class NewEditTask extends AppCompatActivity {
@@ -30,7 +29,7 @@ public class NewEditTask extends AppCompatActivity {
     private Spinner spn_member;
     private Spinner spn_floor;
     private LatLng latlng = new LatLng(0,0);
-    private CalendarView selDate;
+    private DatePicker selDate;
     private Button btnDone;
     ArrayAdapter<String> member_adapter;
     private int db_id = 0;
@@ -40,13 +39,14 @@ public class NewEditTask extends AppCompatActivity {
 
     private Context context;
 
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_add_new_task);
         taskDesk=(EditText)findViewById(R.id.taskDesk);
         etLoc = (EditText)findViewById(R.id.etLoc);
-        selDate = (CalendarView)findViewById(R.id.calendarView);
+        selDate = (DatePicker)findViewById(R.id.calendarView);
         btnNewTask=(Button)findViewById(R.id.btnNewTask);
         btnNewTask.setText("New Task");
         btnDone = (Button)findViewById(R.id.doneButton);
@@ -110,7 +110,8 @@ public class NewEditTask extends AppCompatActivity {
 
         // check if for edit
         final Task existingTask;
-        if (getIntent().hasExtra("task")) {
+        final boolean isForEdit = getIntent().hasExtra("task");
+        if (isForEdit) {
             existingTask = (Task)getIntent().getSerializableExtra("task");
             int spinnerPosition = priority_adapter.getPosition(existingTask.getPriority());
             spn_priority.setSelection(spinnerPosition);
@@ -120,7 +121,11 @@ public class NewEditTask extends AppCompatActivity {
             spn_floor.setSelection(spinnerPosition);
             etLoc.setText(existingTask.getAddress());
             taskDesk.setText(existingTask.getTask());
-            selDate.setDate(existingTask.getDate());
+
+            long dv = Long.valueOf(existingTask.getDate().toString())*1000;// its need to be in milisecond
+            Date df = new java.util.Date(dv);
+            selDate.updateDate(df.getYear(), df.getMonth(), df.getDay());
+
             db_id = existingTask.getID();
             position = getIntent().getIntExtra("position", position);
             btnNewTask.setText("Update");
@@ -148,6 +153,7 @@ public class NewEditTask extends AppCompatActivity {
             @Override
             public void onClick(View arg0) {
                 Intent intent = new Intent();
+                intent.putExtra("ACTION",(isForEdit) ? 1 : 0);
                 intent.putExtra("ID", db_id);
                 intent.putExtra("TASK", taskDesk.getText().toString());
                 intent.putExtra("PRIORITY", spn_priority.getSelectedItem().toString());
@@ -155,8 +161,9 @@ public class NewEditTask extends AppCompatActivity {
                 intent.putExtra("LNG", latlng.longitude);
                 intent.putExtra("LOCATION", etLoc.getText().toString());
                 intent.putExtra("MEMBER_ID",userMailId.get(spn_member.getSelectedItem().toString()).toString());
-                intent.putExtra("FLOOR",spn_floor.getSelectedItem().toString());
-                intent.putExtra("DATE", selDate.getDate());
+                intent.putExtra("FLOOR", spn_floor.getSelectedItem().toString());
+                Calendar date = new GregorianCalendar(selDate.getYear(), selDate.getMonth(), selDate.getDayOfMonth());
+                intent.putExtra("DATE", date.getTimeInMillis());
                 intent.putExtra("STATUS",currentStatus);
                 setResult(Activity.RESULT_OK, intent);
                 finish();

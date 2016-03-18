@@ -61,17 +61,17 @@ public class CustomAdapter extends BaseAdapter{
         holder.task=(TextView) convertView.findViewById(R.id.taskTextView);
 
         holder.task.setText(result.get(position).getTask() + " - " + result.get(position).getStatus());
-        holder.task.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-
-                Intent editTaskIntent = new Intent(context, NewEditTask.class);
-                editTaskIntent.putExtra("position", position);
-                editTaskIntent.putExtra("task", result.get(position));
-                ((Activity) context).startActivityForResult(editTaskIntent, Consts.EDIT_TASK_CODE);
-
-            }
-        });
+//        holder.task.setOnClickListener(new View.OnClickListener() {
+//            @Override
+//            public void onClick(View v) {
+//
+//                Intent editTaskIntent = new Intent(context, NewEditTask.class);
+//                editTaskIntent.putExtra("position", position);
+//                editTaskIntent.putExtra("task", result.get(position));
+//                ((Activity) context).startActivityForResult(editTaskIntent, Consts.EDIT_TASK_CODE);
+//
+//            }
+//        });
         return convertView;
     }
 }

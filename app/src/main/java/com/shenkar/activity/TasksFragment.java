@@ -14,9 +14,11 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.AdapterView;
 import android.widget.Button;
 import android.widget.ListView;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.ex2.shenkar.todolist.Consts;
 import com.ex2.shenkar.todolist.CustomAdapter;
@@ -79,8 +81,9 @@ public class TasksFragment extends Fragment {
         txtAll=(TextView)rootView.findViewById(R.id.txtAll);
         txtPending=(TextView)rootView.findViewById(R.id.txtPending);
         txtPrgs=(TextView)rootView.findViewById(R.id.txtPrgs);
+        mainActivity = (Welcome) getActivity();
+        myListAdapter = new CustomAdapter(mainActivity, adapterTasks);
 
-        myListAdapter = new CustomAdapter(getActivity(), adapterTasks);
 
         int refreshInterval = mainActivity.getUser().getSyncIntervalDelay()*10000;
 
@@ -242,6 +245,17 @@ public class TasksFragment extends Fragment {
         context=getContext();
         lv=(ListView) rootView.findViewById(R.id.list);
         lv.setAdapter(myListAdapter);
+        lv.setOnItemClickListener(new android.widget.AdapterView.OnItemClickListener() {
+            public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+
+
+                Intent editTaskIntent = new Intent(context, NewEditTask.class);
+                editTaskIntent.putExtra("position", position);
+                editTaskIntent.putExtra("task", adapterTasks.get(position));
+                startActivityForResult(editTaskIntent, Consts.EDIT_TASK_CODE);
+
+            }
+        });
     }
 
     public void setRecordToDB(Intent data){
@@ -256,19 +270,19 @@ public class TasksFragment extends Fragment {
         Long selectedDate = data.getLongExtra("DATE", 1);
         String status = data.getStringExtra("STATUS");
 
-        String model = "MODEL=Tasks&";
+        String model = "MODEL=Tasks";
         String command;
         String idAttr;
         if (action == 1){ //action 0 - new; action 1 - update
             int id = data.getIntExtra("ID", 0);
-            command = "COMMAND=update?";
-            idAttr = "attrs[id]="+id;
+            command = "&COMMAND=update";
+            idAttr = "&attrs[id]="+id;
         }else{
-            command = "COMMAND=add&";
+            command = "&COMMAND=add";
             idAttr = "";
         }
         String query = model+command+idAttr+
-                "attrs[manager_id]="+String.valueOf(mainActivity.getUser().getId()) +
+                "&attrs[manager_id]="+String.valueOf(mainActivity.getUser().getId()) +
                 "&attrs[task]="+task+
                 "&attrs[member]="+member_id+
                 "&attrs[priority]="+priority+
@@ -315,13 +329,15 @@ public class TasksFragment extends Fragment {
         switch(requestCode) {
             case (Consts.NEW_TASK_CODE) : {
                 if (resultCode == Activity.RESULT_OK) {
+//                    db.insertWithOnConflict(TaskContract.TABLE, null, values,
+//                            SQLiteDatabase.CONFLICT_IGNORE);
+
                     getAllTasksFromDB();
                 }
                 break;
             }
             case (Consts.EDIT_TASK_CODE) : {
                 if (resultCode == Activity.RESULT_OK) {
-
 
 //                    db.update(TaskContract.TABLE, values, TaskContract.Columns.ID + " = "
 //                            + id, null);
