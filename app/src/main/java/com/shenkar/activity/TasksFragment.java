@@ -245,6 +245,7 @@ public class TasksFragment extends Fragment {
     }
 
     public void setRecordToDB(Intent data){
+        int action = data.getIntExtra("ACTION",0);
         String task=data.getStringExtra("TASK");
         String priority=data.getStringExtra("PRIORITY");
         Double lat = data.getDoubleExtra("LAT", 1);
@@ -255,17 +256,28 @@ public class TasksFragment extends Fragment {
         Long selectedDate = data.getLongExtra("DATE", 1);
         String status = data.getStringExtra("STATUS");
 
-
-        String query = "MODEL=Tasks&COMMAND=add" + "&attrs[manager_id]="+String.valueOf(mainActivity.getUser().getId()) +
-                        "&attrs[task]="+task+
-                        "&attrs[member]="+member_id+
-                        "&attrs[priority]="+priority+
-                        "&attrs[lat]="+lat+
-                        "&attrs[lng]="+lng+
-                        "&attrs[location]="+location+
-                        "&attrs[date]="+selectedDate+
-                        "&attrs[status]="+status+
-                        "&attrs[floor]="+floor;
+        String model = "MODEL=Tasks&";
+        String command;
+        String idAttr;
+        if (action == 1){ //action 0 - new; action 1 - update
+            int id = data.getIntExtra("ID", 0);
+            command = "COMMAND=update?";
+            idAttr = "attrs[id]="+id;
+        }else{
+            command = "COMMAND=add&";
+            idAttr = "";
+        }
+        String query = model+command+idAttr+
+                "attrs[manager_id]="+String.valueOf(mainActivity.getUser().getId()) +
+                "&attrs[task]="+task+
+                "&attrs[member]="+member_id+
+                "&attrs[priority]="+priority+
+                "&attrs[lat]="+lat+
+                "&attrs[lng]="+lng+
+                "&attrs[location]="+location+
+                "&attrs[date]="+selectedDate+
+                "&attrs[status]="+status+
+                "&attrs[floor]="+floor;
         Log.d("mesch", query);
         GetRequest.send(query, getContext(), new GetRequestCallback() {
             @Override
@@ -294,26 +306,22 @@ public class TasksFragment extends Fragment {
     public void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
 
-        ContentValues values;
-        helper = new TaskDBHelper(getActivity());
-        SQLiteDatabase db = helper.getWritableDatabase();
+//        ContentValues values;
+//        helper = new TaskDBHelper(getActivity());
+//        SQLiteDatabase db = helper.getWritableDatabase();
 
 //        values = setRecordToDB(data);
         setRecordToDB(data);
         switch(requestCode) {
             case (Consts.NEW_TASK_CODE) : {
                 if (resultCode == Activity.RESULT_OK) {
-
-//                    db.insertWithOnConflict(TaskContract.TABLE, null, values,
-//                            SQLiteDatabase.CONFLICT_IGNORE);
-
                     getAllTasksFromDB();
                 }
                 break;
             }
             case (Consts.EDIT_TASK_CODE) : {
                 if (resultCode == Activity.RESULT_OK) {
-                    int id = data.getIntExtra("ID", 0);
+
 
 //                    db.update(TaskContract.TABLE, values, TaskContract.Columns.ID + " = "
 //                            + id, null);
