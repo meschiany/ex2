@@ -30,6 +30,7 @@ public class Welcome extends AppCompatActivity implements FragmentDrawer.Fragmen
     private RegisteredUser user;
     private Team team;
     ProgressBar progressBar;
+    int screenIndex;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -93,7 +94,7 @@ public class Welcome extends AppCompatActivity implements FragmentDrawer.Fragmen
                                  */
                                 if(team.getTeamMates().size() == 0){
 
-                                    displayView(2);
+                                    displayView(1);
                                 }else{
                                     displayView(0);
                                 }
@@ -143,6 +144,7 @@ public class Welcome extends AppCompatActivity implements FragmentDrawer.Fragmen
     public  void displayView(int position) {
         android.support.v4.app.Fragment fragment = null;
         String title = getString(R.string.app_name);
+        screenIndex = position;
 
         if(user != null && user.getType() == User.Type.MANAGER) {
             switch (position) {
@@ -263,5 +265,17 @@ public class Welcome extends AppCompatActivity implements FragmentDrawer.Fragmen
     public Team getTeam(){
 
         return team;
+    }
+
+    @Override
+    public void onBackPressed() {
+
+        if(screenIndex != 0){
+
+            displayView(0);
+            return;
+        }
+
+        super.onBackPressed();
     }
 }
