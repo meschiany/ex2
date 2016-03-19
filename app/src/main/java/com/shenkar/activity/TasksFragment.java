@@ -4,17 +4,16 @@ import android.app.Activity;
 import android.content.ContentValues;
 import android.content.Context;
 import android.content.Intent;
-import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.graphics.Color;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
+import android.support.design.widget.FloatingActionButton;
 import android.support.v4.app.Fragment;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.Button;
 import android.widget.ListView;
 import android.widget.TextView;
 
@@ -23,7 +22,6 @@ import com.ex2.shenkar.todolist.CustomAdapter;
 import com.ex2.shenkar.todolist.NewEditTask;
 import com.ex2.shenkar.todolist.R;
 import com.ex2.shenkar.todolist.Task;
-import com.ex2.shenkar.todolist.TaskContract;
 import com.ex2.shenkar.todolist.TaskDBHelper;
 import com.ex2.shenkar.todolist.User;
 import com.ex2.shenkar.todolist.Welcome;
@@ -48,7 +46,7 @@ public class TasksFragment extends Fragment {
     private Context context;
     private CustomAdapter myListAdapter;
     private ArrayList<Task> adapterTasks = new ArrayList<Task>();
-    private Button btn;
+    private FloatingActionButton btn;
     private TaskDBHelper helper;
 
     private String currentStatus = Consts.STATUS_ALL;
@@ -95,7 +93,7 @@ public class TasksFragment extends Fragment {
 
         getAllTasksFromDB();
 
-        btn = (Button) rootView.findViewById(R.id.fab);
+        btn = (FloatingActionButton) rootView.findViewById(R.id.fab);
         btn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -195,9 +193,7 @@ public class TasksFragment extends Fragment {
         txtAll.setBackgroundColor(Color.parseColor(Consts.COLOR_MENUBLUE));
         txtPending.setBackgroundColor(Color.parseColor(Consts.COLOR_MENUBLUE));
         txtPrgs.setBackgroundColor(Color.parseColor(Consts.COLOR_MENUBLUE));
-        txtAll.setTextColor(Color.BLACK);
-        txtPending.setTextColor(Color.BLACK);
-        txtPrgs.setTextColor(Color.BLACK);
+
         switch (currentStatus){
             case Consts.STATUS_ALL:
                 txtAll.setBackgroundColor(Color.parseColor(Consts.COLOR_LIGHTBLUE));

@@ -15,7 +15,7 @@ public class Consts {
     public static final String STATUS_PROGRESS = "PROGRESS";
     public static final String STATUS_ALL = "ALL";
 
-    public static final String COLOR_LIGHTBLUE = "#FF757DDF";
+    public static final String COLOR_LIGHTBLUE = "#4f5fbb";
     public static final String COLOR_MENUBLUE = "#FF3840a6";
 
 }

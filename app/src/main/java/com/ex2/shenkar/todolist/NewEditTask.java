@@ -3,26 +3,37 @@ package com.ex2.shenkar.todolist;
 import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
-import android.database.sqlite.SQLiteDatabase;
-import android.support.v7.app.AppCompatActivity;
+import android.graphics.Bitmap;
+import android.net.Uri;
 import android.os.Bundle;
-import android.util.Log;
+import android.provider.MediaStore;
+import android.support.v7.app.AppCompatActivity;
 import android.view.Menu;
 import android.view.View;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.CalendarView;
 import android.widget.EditText;
+import android.widget.ImageButton;
+import android.widget.ImageView;
 import android.widget.Spinner;
 import android.widget.Toast;
 
 import com.google.android.gms.maps.model.LatLng;
-import com.shenkar.tools.GetRequest;
+import com.shenkar.tools.GetRequestCallback;
+import com.shenkar.tools.UploadImage;
 
+import org.json.JSONObject;
+
+import java.io.FileNotFoundException;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
 
 public class NewEditTask extends AppCompatActivity {
+
+    private static final int GET_FROM_GALLERY = 8;
+
     private EditText taskDesk;
     private EditText etLoc;
     private Button btnNewTask;
@@ -37,8 +48,10 @@ public class NewEditTask extends AppCompatActivity {
     private int position = 0;
     private String currentStatus = Consts.STATUS_PENDING;
     private HashMap userMailId = new HashMap();
+    private ImageButton uploadImageBtn;
 
     private Context context;
+    private ImageView taskImage;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -50,6 +63,8 @@ public class NewEditTask extends AppCompatActivity {
         btnNewTask=(Button)findViewById(R.id.btnNewTask);
         btnNewTask.setText("New Task");
         btnDone = (Button)findViewById(R.id.doneButton);
+        uploadImageBtn = (ImageButton) findViewById(R.id.uploadImageBtn);
+        taskImage = (ImageView) findViewById(R.id.taskImage);
 
         RegisteredUser.getUser(this, new RegisteredUserCallback() {
             @Override
@@ -80,6 +95,14 @@ public class NewEditTask extends AppCompatActivity {
                         }
                     });
                 }
+
+                uploadImageBtn.setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View v) {
+
+                        pickImage();
+                    }
+                });
             }
 
             @Override
@@ -120,7 +143,11 @@ public class NewEditTask extends AppCompatActivity {
             spn_floor.setSelection(spinnerPosition);
             etLoc.setText(existingTask.getAddress());
             taskDesk.setText(existingTask.getTask());
-            selDate.setDate(existingTask.getDate());
+
+            try {
+                selDate.setDate(existingTask.getDate());
+            }catch(Exception e){}
+
             db_id = existingTask.getID();
             position = getIntent().getIntExtra("position", position);
             btnNewTask.setText("Update");
@@ -201,7 +228,48 @@ public class NewEditTask extends AppCompatActivity {
                 latlng = new LatLng(lat,lng);
                 etLoc.setText(data.getStringExtra("location"));
             }
+
+            case GET_FROM_GALLERY :{
+
+                if(resultCode == Activity.RESULT_OK) {
+                    Uri selectedImage = data.getData();
+                    Bitmap bitmap = null;
+                    try {
+                        final Bitmap b = MediaStore.Images.Media.getBitmap(this.getContentResolver(), selectedImage);
+
+                        UploadImage ui = new UploadImage();
+                        ui.setUrl("http://shnizle.site90.com/webService.php?MODEL=Tasks&COMMAND=upload&filters[id]="+db_id)
+                          .setRequestCallback(new GetRequestCallback() {
+                              @Override
+                              public void success(JSONObject jsonObject) {
+
+                                  taskImage.setImageBitmap(b);
+                                  Toast.makeText(NewEditTask.this, "Image uploaded", Toast.LENGTH_LONG).show();
+                              }
+
+                              @Override
+                              public void failed(Exception error) {
+
+                              }
+                          })
+                        .execute(b);
+
+                    } catch (FileNotFoundException e) {
+                        // TODO Auto-generated catch block
+                        e.printStackTrace();
+                    } catch (IOException e) {
+                        // TODO Auto-generated catch block
+                        e.printStackTrace();
+                    }
+                }
+                break;
+            }
         }
+    }
+
+    private void pickImage(){
+
+        startActivityForResult(new Intent(Intent.ACTION_PICK, android.provider.MediaStore.Images.Media.INTERNAL_CONTENT_URI), GET_FROM_GALLERY);
     }
 
     @Override
