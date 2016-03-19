@@ -4,7 +4,9 @@ import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
 import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.net.Uri;
+import android.os.AsyncTask;
 import android.os.Bundle;
 import android.provider.MediaStore;
 import android.support.v7.app.AppCompatActivity;
@@ -27,6 +29,8 @@ import org.json.JSONObject;
 
 import java.io.FileNotFoundException;
 import java.io.IOException;
+import java.io.InputStream;
+import java.net.URL;
 import java.util.ArrayList;
 import java.util.HashMap;
 
@@ -216,6 +220,28 @@ public class NewEditTask extends AppCompatActivity {
 //                sqlDB.execSQL(sql);
             }
         });
+
+        // load remote image
+        new AsyncTask<Void, Void, Bitmap>() {
+            @Override
+            protected Bitmap doInBackground(Void... params) {
+                try {
+                    InputStream in = new URL("http://shnizle.site90.com/taskImages/"+String.valueOf(db_id)+".jpg").openStream();
+                    Bitmap bmp = BitmapFactory.decodeStream(in);
+                    return bmp;
+                } catch (Exception e) {
+                    // log error
+                }
+                return null;
+            }
+
+            @Override
+            protected void onPostExecute(Bitmap result) {
+                if (result != null)
+                    taskImage.setImageBitmap(result);
+            }
+
+        }.execute();
     }
 
 
