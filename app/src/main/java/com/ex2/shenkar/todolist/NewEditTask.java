@@ -14,6 +14,7 @@ import android.view.Menu;
 import android.view.View;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
+import android.widget.CalendarView;
 import android.widget.DatePicker;
 import android.widget.EditText;
 import android.widget.ImageButton;
@@ -48,7 +49,7 @@ public class NewEditTask extends AppCompatActivity {
     private Spinner spn_member;
     private Spinner spn_floor;
     private LatLng latlng = new LatLng(0,0);
-    private DatePicker selDate;
+    private CalendarView selDate;
     private Button btnDone;
     ArrayAdapter<String> member_adapter;
     private int db_id = 0;
@@ -67,7 +68,7 @@ public class NewEditTask extends AppCompatActivity {
         setContentView(R.layout.activity_add_new_task);
         taskDesk=(EditText)findViewById(R.id.taskDesk);
         etLoc = (EditText)findViewById(R.id.etLoc);
-        selDate = (DatePicker)findViewById(R.id.calendarView);
+        selDate = (CalendarView)findViewById(R.id.calendarView);
         btnNewTask=(Button)findViewById(R.id.btnNewTask);
         btnNewTask.setText("New Task");
         btnDone = (Button)findViewById(R.id.doneButton);
@@ -153,15 +154,10 @@ public class NewEditTask extends AppCompatActivity {
             etLoc.setText(existingTask.getAddress());
             taskDesk.setText(existingTask.getTask());
 
-//>>>
-            long dv = Long.valueOf(existingTask.getDate().toString())*1000;// its need to be in milisecond
-            Date df = new java.util.Date(dv);
-            selDate.updateDate(df.getYear(), df.getMonth(), df.getDay());
-//   <<<
-//            try {
-//                selDate.setDate(existingTask.getDate());
-//            }catch(Exception e){}
-//>>>
+            try {
+                selDate.setDate(existingTask.getDate());
+            }catch(Exception e){}
+
             db_id = existingTask.getID();
             btnNewTask.setText("Update");
             btnDone.setVisibility(View.VISIBLE);
