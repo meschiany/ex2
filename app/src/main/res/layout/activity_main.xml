@@ -16,45 +16,91 @@
         android:layout_margin="10dp"
         android:text="@string/add"/>
 
-    <TextView
-        android:layout_width="100dp"
-        android:layout_height="wrap_content"
-        android:textAppearance="?android:attr/textAppearanceMedium"
-        android:text="All Tasks"
-        android:id="@+id/txtAll"
-        android:layout_gravity="left|top"
-        android:textAlignment="center"
-        android:background="#757ddf"
-        android:textColor="#ffffffff" />
 
-    <ListView
+
+
+    <LinearLayout
+        android:orientation="vertical"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content">
+
+        <LinearLayout
+            android:layout_width="fill_parent"
+            android:layout_height="wrap_content"
+            android:id="@+id/statuses">
+
+            <TextView
+                android:layout_width="100dp"
+                android:layout_height="wrap_content"
+                android:textAppearance="?android:attr/textAppearanceMedium"
+                android:text="All Tasks"
+                android:id="@+id/txtAll"
+                android:layout_gravity="left|top"
+                android:textAlignment="center"
+                android:background="#757ddf"
+                android:textColor="#ffffffff" />
+
+            <TextView
+                android:layout_width="100dp"
+                android:layout_height="wrap_content"
+                android:textAppearance="?android:attr/textAppearanceMedium"
+                android:text="In Progress"
+                android:id="@+id/txtPrgs"
+                android:layout_gravity="center_horizontal|top"
+                android:textAlignment="center"
+                android:background="#3840a6"
+                android:textColor="#ffffffff" />
+
+            <TextView
+                android:layout_width="100dp"
+                android:layout_height="wrap_content"
+                android:textAppearance="?android:attr/textAppearanceMedium"
+                android:text="Pending"
+                android:id="@+id/txtPending"
+                android:layout_gravity="right|top"
+                android:textAlignment="center"
+                android:background="#3840a6"
+                android:textColor="#ffffff" />
+        </LinearLayout>
+
+        <LinearLayout
+            android:layout_width="fill_parent"
+            android:layout_height="wrap_content">
+
+            <Switch
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/orderby"
+                android:id="@+id/swtOrder" />
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:textAppearance="?android:attr/textAppearanceSmall"
+                android:layout_marginRight="50dp"
+                android:text="priority"
+                android:id="@+id/txtOrder" />
+
+            <Switch
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Sort: "
+                android:id="@+id/swtSort"
+                 />
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:textAppearance="?android:attr/textAppearanceSmall"
+                android:text="DESC"
+                android:id="@+id/txtSort" />
+        </LinearLayout>
+        <ListView
         android:layout_width="match_parent"
-        android:layout_height="376dp"
+        android:layout_height="fill_parent"
         android:id="@+id/list"
         android:layout_weight="1"
         android:layout_gravity="center" />
-
-    <TextView
-        android:layout_width="100dp"
-        android:layout_height="wrap_content"
-        android:textAppearance="?android:attr/textAppearanceMedium"
-        android:text="In Progress"
-        android:id="@+id/txtPrgs"
-        android:layout_gravity="center_horizontal|top"
-        android:textAlignment="center"
-        android:background="#3840a6"
-        android:textColor="#ffffffff" />
-
-    <TextView
-        android:layout_width="100dp"
-        android:layout_height="wrap_content"
-        android:textAppearance="?android:attr/textAppearanceMedium"
-        android:text="Pending"
-        android:id="@+id/txtPending"
-        android:layout_gravity="right|top"
-        android:textAlignment="center"
-        android:background="#3840a6"
-        android:textColor="#ffffff" />
-
+    </LinearLayout>
 
 </FrameLayout>

@@ -16,7 +16,9 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AdapterView;
 import android.widget.Button;
+import android.widget.CompoundButton;
 import android.widget.ListView;
+import android.widget.Switch;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -37,6 +39,8 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.Timer;
 import java.util.TimerTask;
 
@@ -59,6 +63,13 @@ public class TasksFragment extends Fragment {
     private TextView txtPending;
 
     private TextView txtPrgs;
+
+    private Switch swtOrder;
+    private TextView txtOrder;
+    private Switch swtSort;
+    private TextView txtSort;
+
+
     private Welcome mainActivity;
 
     private ArrayList<Task> tasks = new ArrayList<Task>();
@@ -128,6 +139,37 @@ public class TasksFragment extends Fragment {
             public void onClick(View v) {
                 currentStatus = Consts.STATUS_ALL;
                 setActiveList();
+                setTaskList();
+            }
+        });
+
+        swtOrder = (Switch)rootView.findViewById(R.id.swtOrder);
+        swtSort = (Switch)rootView.findViewById(R.id.swtSort);
+        txtOrder = (TextView)rootView.findViewById(R.id.txtOrder);
+        txtSort = (TextView)rootView.findViewById(R.id.txtSort);
+
+        swtOrder.setChecked(false);
+        swtOrder.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
+            @Override
+            public void onCheckedChanged(CompoundButton compoundButton, boolean bChecked) {
+                if (!bChecked) {
+                    txtOrder.setText("priority");
+                } else {
+                    txtOrder.setText("date");
+                }
+                setTaskList();
+            }
+        });
+
+        swtSort.setChecked(false);
+        swtSort.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
+            @Override
+            public void onCheckedChanged(CompoundButton compoundButton, boolean bChecked) {
+                if (!bChecked) {
+                    txtSort.setText("DESC");
+                } else {
+                    txtSort.setText("ASC");
+                }
                 setTaskList();
             }
         });
@@ -218,6 +260,47 @@ public class TasksFragment extends Fragment {
         }
     }
 
+    public class DateComparator implements Comparator<Task> {
+        @Override
+        public int compare(Task o1, Task o2) {
+            return o1.getDate().compareTo(o2.getDate());
+        }
+    }
+
+    public class PriorityComparator implements Comparator<Task> {
+        @Override
+        public int compare(Task o1, Task o2) {
+            String status1 = o1.getStatus();
+            String status2 = o2.getStatus();
+            if ( status1.equals(status2) ) {
+                return 0;
+            }
+            if (status1.equals(Consts.STATUS_PENDING)){
+                return 1;
+            }
+            if (status1.equals(Consts.STATUS_PROGRESS) && status2.equals(Consts.STATUS_PENDING)){
+                return -1;
+            }
+            if (status1.equals(Consts.STATUS_PROGRESS) && status2.equals(Consts.STATUS_DONE)){
+                return 1;
+            }
+
+            return -1;
+        }
+    }
+
+    public void orderTasks(){
+        if (swtOrder.isChecked()) {// meaning date
+            Collections.sort(adapterTasks, new DateComparator());
+        }else{ //meaning priority
+            Collections.sort(adapterTasks, new PriorityComparator());
+        }
+
+        if (swtSort.isChecked()){
+            Collections.reverse(adapterTasks);
+        }
+    }
+
     public void setTaskList(){
         adapterTasks.clear();
 //        cursor.moveToFirst();
@@ -239,7 +322,7 @@ public class TasksFragment extends Fragment {
             if (currentStatus.equals(Consts.STATUS_ALL)||t.getStatus().equals(currentStatus)){
                 adapterTasks.add(t);
             }
-
+            orderTasks();
         }
         myListAdapter.notifyDataSetChanged();
         context=getContext();
@@ -276,13 +359,12 @@ public class TasksFragment extends Fragment {
         if (action == 1){ //action 0 - new; action 1 - update
             int id = data.getIntExtra("ID", 0);
             command = "&COMMAND=update";
-            idAttr = "&attrs[id]="+id;
+            idAttr = "&filters[id]="+id;
         }else{
             command = "&COMMAND=add";
             idAttr = "";
         }
         String query = model+command+idAttr+
-                "&attrs[manager_id]="+String.valueOf(mainActivity.getUser().getId()) +
                 "&attrs[task]="+task+
                 "&attrs[member]="+member_id+
                 "&attrs[priority]="+priority+
@@ -295,14 +377,10 @@ public class TasksFragment extends Fragment {
         Log.d("mesch", query);
         GetRequest.send(query, getContext(), new GetRequestCallback() {
             @Override
-            public void success(JSONObject jsonObject) {
-
-            }
+            public void success(JSONObject jsonObject) {}
 
             @Override
-            public void failed(Exception error) {
-
-            }
+            public void failed(Exception error) {}
         });
 //        ContentValues values = new ContentValues();
 //        values.put(TaskContract.Columns.TASK, task);
@@ -326,27 +404,25 @@ public class TasksFragment extends Fragment {
 
 //        values = setRecordToDB(data);
         setRecordToDB(data);
-        switch(requestCode) {
-            case (Consts.NEW_TASK_CODE) : {
-                if (resultCode == Activity.RESULT_OK) {
+        getAllTasksFromDB();
+//        switch(requestCode) {
+//            case (Consts.NEW_TASK_CODE) : {
+//                if (resultCode == Activity.RESULT_OK) {
 //                    db.insertWithOnConflict(TaskContract.TABLE, null, values,
 //                            SQLiteDatabase.CONFLICT_IGNORE);
-
-                    getAllTasksFromDB();
-                }
-                break;
-            }
-            case (Consts.EDIT_TASK_CODE) : {
-                if (resultCode == Activity.RESULT_OK) {
-
+//
+//                    getAllTasksFromDB();
+//                }
+//                break;
+//            }
+//            case (Consts.EDIT_TASK_CODE) : {
+//                if (resultCode == Activity.RESULT_OK) {
 //                    db.update(TaskContract.TABLE, values, TaskContract.Columns.ID + " = "
 //                            + id, null);
-
-                    getAllTasksFromDB();
-
-                }
-                break;
-            }
-        }
+//                    getAllTasksFromDB();
+//                }
+//                break;
+//            }
+//        }
     }
 }

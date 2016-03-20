@@ -127,7 +127,6 @@ public class NewEditTask extends AppCompatActivity {
             selDate.updateDate(df.getYear(), df.getMonth(), df.getDay());
 
             db_id = existingTask.getID();
-            position = getIntent().getIntExtra("position", position);
             btnNewTask.setText("Update");
             btnDone.setVisibility(View.VISIBLE);
 

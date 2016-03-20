@@ -60,7 +60,7 @@ public class CustomAdapter extends BaseAdapter{
 
         holder.task=(TextView) convertView.findViewById(R.id.taskTextView);
 
-        holder.task.setText(result.get(position).getTask() + " - " + result.get(position).getStatus());
+        holder.task.setText(result.get(position).getTask() + " - " + result.get(position).getStatus() + " - " + result.get(position).getMember_name());
 //        holder.task.setOnClickListener(new View.OnClickListener() {
 //            @Override
 //            public void onClick(View v) {

@@ -35,5 +35,6 @@
     <string name="task_list">Task List</string>
     <string name="failed_loading_team">Failed loading team</string>
     <string name="team_managment">Team management</string>
+    <string name="orderby">Order by:</string>
 
 </resources>
