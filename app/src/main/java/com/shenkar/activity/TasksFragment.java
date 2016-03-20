@@ -402,8 +402,10 @@ public class TasksFragment extends Fragment {
 //        SQLiteDatabase db = helper.getWritableDatabase();
 
 //        values = setRecordToDB(data);
+    if (resultCode == Activity.RESULT_OK) {
         setRecordToDB(data);
         getAllTasksFromDB();
+    }
 //        switch(requestCode) {
 //            case (Consts.NEW_TASK_CODE) : {
 //                if (resultCode == Activity.RESULT_OK) {
