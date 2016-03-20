@@ -48,6 +48,8 @@ public class CustomAdapter extends BaseAdapter{
 
     public class Holder {
         TextView task;
+        TextView status;
+        TextView member;
     }
     @Override
     public View getView(final int position, View convertView, ViewGroup parent) {
@@ -59,8 +61,12 @@ public class CustomAdapter extends BaseAdapter{
 
 
         holder.task=(TextView) convertView.findViewById(R.id.taskTextView);
+        holder.status=(TextView) convertView.findViewById(R.id.statusTextView);
+        holder.member=(TextView) convertView.findViewById(R.id.memberTextView);
 
-        holder.task.setText(result.get(position).getTask() + " - " + result.get(position).getStatus() + " - " + result.get(position).getMember_name());
+        holder.task.setText(result.get(position).getTask());
+        holder.status.setText(result.get(position).getStatus());
+        holder.member.setText(result.get(position).getMember_name());
 //        holder.task.setOnClickListener(new View.OnClickListener() {
 //            @Override
 //            public void onClick(View v) {
