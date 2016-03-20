@@ -158,9 +158,9 @@ public class NewEditTask extends AppCompatActivity {
             Date df = new java.util.Date(dv);
             selDate.updateDate(df.getYear(), df.getMonth(), df.getDay());
 //   <<<
-            try {
-                selDate.setDate(existingTask.getDate());
-            }catch(Exception e){}
+//            try {
+//                selDate.setDate(existingTask.getDate());
+//            }catch(Exception e){}
 //>>>
             db_id = existingTask.getID();
             btnNewTask.setText("Update");
