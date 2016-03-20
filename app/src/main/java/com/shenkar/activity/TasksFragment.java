@@ -364,7 +364,7 @@ public class TasksFragment extends Fragment {
             idAttr = "";
         }
         String query = model+command+idAttr+
-                "&attrs[task]="+task+
+                "&attrs[task]="+task.replace(" ", "%20")+
                 "&attrs[member]="+member_id+
                 "&attrs[priority]="+priority+
                 "&attrs[lat]="+lat+
