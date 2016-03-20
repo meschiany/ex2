@@ -1,7 +1,5 @@
 package com.ex2.shenkar.todolist;
 
-import android.app.Fragment;
-import android.app.FragmentTransaction;
 import android.content.Intent;
 import android.os.Bundle;
 import android.support.v4.app.FragmentManager;
@@ -9,18 +7,17 @@ import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.util.Log;
-import android.view.Menu;
 import android.view.View;
 import android.widget.ProgressBar;
 import android.widget.Toast;
 
+import com.google.android.gms.analytics.GoogleAnalytics;
+import com.google.android.gms.analytics.HitBuilders;
+import com.google.android.gms.analytics.Tracker;
 import com.shenkar.activity.CreateTeamFragment;
 import com.shenkar.activity.FragmentDrawer;
 import com.shenkar.activity.SettingsFragment;
 import com.shenkar.activity.TasksFragment;
-import com.shenkar.activity.WelcomeFragement;
-
-import java.util.ArrayList;
 
 public class Welcome extends AppCompatActivity implements FragmentDrawer.FragmentDrawerListener {
 
@@ -30,6 +27,7 @@ public class Welcome extends AppCompatActivity implements FragmentDrawer.Fragmen
     private Team team;
     ProgressBar progressBar;
     int screenIndex;
+    private Tracker mTracker;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -225,6 +223,10 @@ public class Welcome extends AppCompatActivity implements FragmentDrawer.Fragmen
             // set the toolbar title
             getSupportActionBar().setTitle(title);
         }
+
+        Log.i("MainActivity", "Setting screen name: " + title);
+        getDefaultTracker().setScreenName(title);
+        getDefaultTracker().send(new HitBuilders.ScreenViewBuilder().build());
     }
 
     private void setupMenu(){
@@ -270,5 +272,17 @@ public class Welcome extends AppCompatActivity implements FragmentDrawer.Fragmen
         }
 
         super.onBackPressed();
+    }
+
+    /**
+     * Gets the default {@link Tracker} for this {@link Application}.
+     * @return tracker
+     */
+    synchronized public Tracker getDefaultTracker() {
+        if (mTracker == null) {
+            GoogleAnalytics analytics = GoogleAnalytics.getInstance(this);
+            mTracker = analytics.newTracker("UA-75350938-1");
+        }
+        return mTracker;
     }
 }
