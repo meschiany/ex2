@@ -8,6 +8,7 @@ import android.database.Cursor;
 import android.os.AsyncTask;
 import android.provider.ContactsContract;
 import android.view.View;
+import android.view.Window;
 import android.widget.AdapterView;
 import android.widget.ListView;
 import android.widget.ProgressBar;
@@ -42,6 +43,9 @@ public class SelectContactDialog extends Dialog {
 
         contacts = new ArrayList<>();
         selectedContacts = new ArrayList<>();
+
+        //
+        getWindow().requestFeature(Window.FEATURE_NO_TITLE);
 
         setContentView(R.layout.dialog_select_contacts);
 
