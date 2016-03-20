@@ -3,18 +3,54 @@
     android:layout_width="fill_parent"
     android:layout_height="fill_parent"
     xmlns:android="http://schemas.android.com/apk/res/android">
-
+<LinearLayout
+    android:layout_width="fill_parent"
+    android:layout_height="wrap_content"
+    android:orientation="vertical">
     <TextView
         android:layout_width="wrap_content"
-        android:layout_height="60dp"
+        android:layout_height="45dp"
         android:text="New Text"
         android:id="@+id/taskTextView"
-        android:layout_alignParentTop="true"
-        android:layout_alignParentLeft="true"
-        android:layout_alignParentStart="true"
         android:textSize="20dp"
         android:paddingLeft="10dip"
         android:paddingRight="10dip"
+        android:paddingTop="15dp"
+        android:layout_weight="1"
         android:gravity="center_vertical" />
+
+
+    <!--android:gravity="center"-->
+    <!--android:textAlignment="center"-->
+    <LinearLayout
+        android:layout_width="fill_parent"
+        android:layout_height="wrap_content"
+        android:background="@color/colorPrimary">
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="20dp"
+            android:text="New Text"
+            android:id="@+id/statusTextView"
+            android:textSize="14dp"
+            android:paddingLeft="10dip"
+            android:paddingRight="10dip"
+            android:layout_weight="1"
+            android:gravity="center_vertical"
+            android:textColor="@color/common_google_signin_btn_text_dark"/>
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="20dp"
+            android:text="New Text"
+            android:id="@+id/memberTextView"
+            android:textSize="14dp"
+            android:paddingLeft="10dip"
+            android:paddingRight="10dip"
+            android:layout_weight="1"
+            android:gravity="center_vertical"
+            android:textColor="@color/common_google_signin_btn_text_dark"/>
+    </LinearLayout>
+</LinearLayout>
 
 </RelativeLayout>

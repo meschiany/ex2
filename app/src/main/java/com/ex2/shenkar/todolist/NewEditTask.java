@@ -49,10 +49,10 @@ public class NewEditTask extends AppCompatActivity {
     private Button btnDone;
     ArrayAdapter<String> member_adapter;
     private int db_id = 0;
-    private int position = 0;
     private String currentStatus = Consts.STATUS_PENDING;
     private HashMap userMailId = new HashMap();
     private ImageButton uploadImageBtn;
+    private Long selectedDate;
 
     private Context context;
     private ImageView taskImage;
@@ -65,6 +65,17 @@ public class NewEditTask extends AppCompatActivity {
         taskDesk=(EditText)findViewById(R.id.taskDesk);
         etLoc = (EditText)findViewById(R.id.etLoc);
         selDate = (CalendarView)findViewById(R.id.calendarView);
+
+        selDate.setOnDateChangeListener(new CalendarView.OnDateChangeListener() {
+
+            @Override
+            public void onSelectedDayChange(CalendarView view, int year, int month,
+                                            int dayOfMonth) {
+                //GregorianCalendar gc = new GregorianCalendar(TimeZone.getTimeZone("UTC"));
+               // gc.set(year, month + 1, dayOfMonth);
+                selectedDate = selDate.getDate();
+            }
+        });
         btnNewTask=(Button)findViewById(R.id.btnNewTask);
         btnNewTask.setText("New Task");
         btnDone = (Button)findViewById(R.id.doneButton);
@@ -151,6 +162,7 @@ public class NewEditTask extends AppCompatActivity {
             taskDesk.setText(existingTask.getTask());
 
             try {
+                selectedDate = existingTask.getDate();
                 selDate.setDate(existingTask.getDate());
             }catch(Exception e){}
 
@@ -187,11 +199,10 @@ public class NewEditTask extends AppCompatActivity {
                 intent.putExtra("LAT", latlng.latitude);
                 intent.putExtra("LNG", latlng.longitude);
                 intent.putExtra("LOCATION", etLoc.getText().toString());
-                intent.putExtra("MEMBER_ID",userMailId.get(spn_member.getSelectedItem().toString()).toString());
+                intent.putExtra("MEMBER_ID", userMailId.get(spn_member.getSelectedItem().toString()).toString());
                 intent.putExtra("FLOOR", spn_floor.getSelectedItem().toString());
-                //Calendar date = new GregorianCalendar(selDate.getYear(), selDate.getMonth(), selDate.getDayOfMonth());
-                intent.putExtra("DATE", selDate.getDate());
-                intent.putExtra("STATUS",currentStatus);
+                intent.putExtra("DATE", selectedDate);
+                intent.putExtra("STATUS", currentStatus);
                 setResult(Activity.RESULT_OK, intent);
                 finish();
             }
