@@ -167,6 +167,7 @@ public class NewEditTask extends AppCompatActivity {
             taskDesk.setText(existingTask.getTask());
 
             try {
+                selectedDate = existingTask.getDate();
                 selDate.setDate(existingTask.getDate());
             }catch(Exception e){}
 
@@ -203,7 +204,7 @@ public class NewEditTask extends AppCompatActivity {
                 intent.putExtra("LAT", latlng.latitude);
                 intent.putExtra("LNG", latlng.longitude);
                 intent.putExtra("LOCATION", etLoc.getText().toString());
-                intent.putExtra("MEMBER_ID",userMailId.get(spn_member.getSelectedItem().toString()).toString());
+                intent.putExtra("MEMBER_ID", userMailId.get(spn_member.getSelectedItem().toString()).toString());
                 intent.putExtra("FLOOR", spn_floor.getSelectedItem().toString());
                 intent.putExtra("DATE", selectedDate);
                 intent.putExtra("STATUS", currentStatus);
