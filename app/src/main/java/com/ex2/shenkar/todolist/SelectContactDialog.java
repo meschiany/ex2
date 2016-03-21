@@ -17,7 +17,6 @@ import com.shenkar.managy.adapters.SelectContactsAdapter;
 
 import java.io.InputStream;
 import java.util.ArrayList;
-import java.util.List;
 
 /**
  * Created by shnizle on 1/14/2016.
@@ -186,6 +185,8 @@ public class SelectContactDialog extends Dialog {
 
             @Override
             protected void onPostExecute(Void aVoid) {
+
+                contactsLoading = false;
 
                 // check if view already available
                 if(contactsListView != null){

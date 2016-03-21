@@ -12,8 +12,6 @@ import com.android.volley.toolbox.Volley;
 import org.json.JSONException;
 import org.json.JSONObject;
 
-import java.util.HashMap;
-
 /**
  * Created by shnizle on 2/29/2016.
  */
@@ -25,8 +23,12 @@ public class GetRequest {
         RequestQueue queue = Volley.newRequestQueue(context);
         String url ="http://shnizle.site90.com/webService.php";
 
+        try{
+            query = query.replace(" ", "%20");
+        }catch(Exception e){}
+
 // Request a string response from the provided URL.
-        StringRequest stringRequest = new StringRequest(Request.Method.GET, url+"?"+query,
+        StringRequest stringRequest = new StringRequest(Request.Method.GET, url +"?"+query,
                 new Response.Listener<String>() {
                     @Override
                     public void onResponse(String response) {
