@@ -11,8 +11,6 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
-import java.text.ParseException;
-
 /**
  * Created by shnizle on 1/2/2016.
  */
@@ -93,6 +91,8 @@ public class RegisteredUser extends User{
     }
 
     public static void save(Context context, int id){
+
+        if(id==0)localUser=null;
 
         context.getSharedPreferences("User",0).edit().putInt(KEY_ID, id)
                 .commit();
