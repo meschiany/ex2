@@ -104,7 +104,7 @@ public class Welcome extends AppCompatActivity implements FragmentDrawer.Fragmen
                     case TEAMMATE:
 
                         //show teammate fragement
-                        displayView(1);
+                        displayView(0);
                         break;
 
                     default:
