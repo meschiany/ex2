@@ -1,10 +1,8 @@
 package com.shenkar.activity;
 
 import android.app.Activity;
-import android.content.ContentValues;
 import android.content.Context;
 import android.content.Intent;
-import android.database.sqlite.SQLiteDatabase;
 import android.graphics.Color;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
@@ -14,15 +12,11 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-
 import android.widget.AdapterView;
-import android.widget.Button;
 import android.widget.CompoundButton;
-
 import android.widget.ListView;
 import android.widget.Switch;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import com.ex2.shenkar.todolist.Consts;
 import com.ex2.shenkar.todolist.CustomAdapter;
@@ -179,6 +173,9 @@ public class TasksFragment extends Fragment {
     }
 
     public void getAllTasksFromDB(){
+
+        if(getContext() == null) return;
+
         int user_id = mainActivity.getUser().getId();
         String query = "MODEL=TasksAndMembers&COMMAND=view" + ((mainActivity.getUser().getType() == User.Type.MANAGER) ?
                 "&filters[manager_id]="+String.valueOf(user_id) : "&filters[member]="+String.valueOf(user_id));

@@ -1,56 +1,59 @@
 <?xml version="1.0" encoding="utf-8"?>
 <RelativeLayout
     android:layout_width="fill_parent"
-    android:layout_height="fill_parent"
+    android:layout_height="wrap_content"
     xmlns:android="http://schemas.android.com/apk/res/android">
 <LinearLayout
     android:layout_width="fill_parent"
     android:layout_height="wrap_content"
-    android:orientation="vertical">
+    android:orientation="vertical"
+    android:padding="10dp"
+    android:layout_alignParentLeft="true"
+    android:layout_toLeftOf="@+id/statusTextView"
+    android:gravity="left|center_vertical"
+    >
     <TextView
         android:layout_width="wrap_content"
-        android:layout_height="45dp"
+        android:layout_height="match_parent"
         android:text="New Text"
         android:id="@+id/taskTextView"
         android:textSize="20dp"
         android:paddingLeft="10dip"
         android:paddingRight="10dip"
-        android:paddingTop="15dp"
-        android:layout_weight="1"
-        android:gravity="center_vertical" />
+        android:gravity="center_vertical|left" />
 
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="20dp"
+        android:text="New Text"
+        android:id="@+id/memberTextView"
+        android:textSize="14dp"
+        android:paddingLeft="10dip"
+        android:paddingRight="10dip"
+        android:gravity="center_vertical|left"
+
+        />
 
     <!--android:gravity="center"-->
     <!--android:textAlignment="center"-->
-    <LinearLayout
-        android:layout_width="fill_parent"
-        android:layout_height="wrap_content"
-        android:background="@color/colorPrimary">
 
-        <TextView
-            android:layout_width="wrap_content"
-            android:layout_height="20dp"
-            android:text="New Text"
-            android:id="@+id/statusTextView"
-            android:textSize="14dp"
-            android:paddingLeft="10dip"
-            android:paddingRight="10dip"
-            android:layout_weight="1"
-            android:gravity="center_vertical"
-            android:textColor="@color/common_google_signin_btn_text_dark"/>
 
-        <TextView
-            android:layout_width="wrap_content"
-            android:layout_height="20dp"
-            android:text="New Text"
-            android:id="@+id/memberTextView"
-            android:textSize="14dp"
-            android:paddingLeft="10dip"
-            android:paddingRight="10dip"
-            android:layout_weight="1"
-            android:gravity="center_vertical"
-            android:textColor="@color/common_google_signin_btn_text_dark"/>
-    </LinearLayout>
 </LinearLayout>
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="New Text"
+        android:id="@+id/statusTextView"
+        android:textSize="14dp"
+        android:padding="5dp"
+        android:gravity="center"
+        android:layout_marginRight="10dp"
+        android:layout_centerVertical="true"
+        android:layout_alignParentRight="true"
+        android:textColor="#fff"
+        android:background="@color/colorPrimaryDark"
+        />
 
 </RelativeLayout>
