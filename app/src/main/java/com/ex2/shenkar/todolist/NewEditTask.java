@@ -57,6 +57,7 @@ public class NewEditTask extends AppCompatActivity {
     private Context context;
     private ImageView taskImage;
     private String currMember;
+    private User curUser;
 
 
     @Override
@@ -83,20 +84,35 @@ public class NewEditTask extends AppCompatActivity {
         uploadImageBtn = (ImageButton) findViewById(R.id.uploadImageBtn);
         taskImage = (ImageView) findViewById(R.id.taskImage);
 
+        spn_priority = (Spinner) findViewById(R.id.spn_priority);
+        ArrayAdapter<CharSequence> priority_adapter = ArrayAdapter.createFromResource(this,
+                R.array.priority_array, android.R.layout.simple_spinner_item);
+        priority_adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+        spn_priority.setAdapter(priority_adapter);
+
+//      Members Spinner
+        spn_member = (Spinner) findViewById(R.id.member);
+
+//      Floor Spinner
+        spn_floor = (Spinner) findViewById(R.id.spn_floor);
+        ArrayAdapter<CharSequence> floor_adapter = ArrayAdapter.createFromResource(this,
+                R.array.floors_array, android.R.layout.simple_spinner_item);
+        floor_adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+        spn_floor.setAdapter(floor_adapter);
+
         RegisteredUser.getUser(this, new RegisteredUserCallback() {
             @Override
             public void successful(RegisteredUser user) {
-
+                curUser = user;
                 if (user.getType() == User.Type.MANAGER) {
                     Team.getTeam(user.getTeamId(), NewEditTask.this, new TeamLoadCallback() {
-
                         @Override
                         public void successful(Team team) {
                             ArrayList members_array = new ArrayList();
 
-                            for (RegisteredUser u : team.getTeamMates()){
+                            for (RegisteredUser u : team.getTeamMates()) {
                                 members_array.add(u.getEmail());
-                                userMailId.put(u.getEmail(),u.getId());
+                                userMailId.put(u.getEmail(), u.getId());
                             }
 
                             member_adapter = new ArrayAdapter<String>(NewEditTask.this,
@@ -113,12 +129,19 @@ public class NewEditTask extends AppCompatActivity {
 
                         }
                     });
+                }else{
+                    spn_floor.setEnabled(false);
+                    spn_floor.setClickable(false);
+                    spn_member.setEnabled(false);
+                    spn_member.setClickable(false);
+                    spn_priority.setEnabled(false);
+                    spn_priority.setClickable(false);
+                    taskDesk.setFocusable(false);
                 }
 
                 uploadImageBtn.setOnClickListener(new View.OnClickListener() {
                     @Override
                     public void onClick(View v) {
-
                         pickImage();
                     }
                 });
@@ -129,25 +152,6 @@ public class NewEditTask extends AppCompatActivity {
 
             }
         });
-
-//        Priority Spinner
-        spn_priority = (Spinner) findViewById(R.id.spn_priority);
-        ArrayAdapter<CharSequence> priority_adapter = ArrayAdapter.createFromResource(this,
-                R.array.priority_array, android.R.layout.simple_spinner_item);
-        priority_adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
-        spn_priority.setAdapter(priority_adapter);
-
-//      Members Spinner
-        spn_member = (Spinner) findViewById(R.id.member);
-
-
-
-//      Floor Spinner
-        spn_floor = (Spinner) findViewById(R.id.spn_floor);
-        ArrayAdapter<CharSequence> floor_adapter = ArrayAdapter.createFromResource(this,
-                R.array.floors_array, android.R.layout.simple_spinner_item);
-        floor_adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
-        spn_floor.setAdapter(floor_adapter);
 
 
         // check if for edit
@@ -200,7 +204,11 @@ public class NewEditTask extends AppCompatActivity {
                 intent.putExtra("LAT", latlng.latitude);
                 intent.putExtra("LNG", latlng.longitude);
                 intent.putExtra("LOCATION", "deprecated");
-                intent.putExtra("MEMBER_ID", userMailId.get(spn_member.getSelectedItem().toString()).toString());
+                String member_id="";
+                if (curUser.getType() == User.Type.MANAGER){
+                    member_id= userMailId.get(spn_member.getSelectedItem().toString()).toString();
+                }
+                intent.putExtra("MEMBER_ID", member_id);
                 intent.putExtra("FLOOR", spn_floor.getSelectedItem().toString());
                 intent.putExtra("DATE", selectedDate);
                 intent.putExtra("STATUS", currentStatus);
