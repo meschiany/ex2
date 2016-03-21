@@ -198,7 +198,7 @@ public class TasksFragment extends Fragment {
                                     jo.getDouble("lng"),
                                     jo.getString("location"),
                                     jo.getInt("member"),
-                                    jo.getString("member_name"),
+                                    (mainActivity.getUser().getType() == User.Type.MANAGER)?jo.getString("member_name"):"",
                                     jo.getLong("date"),
                                     jo.getString("status"),
                                     jo.getString("floor")
@@ -359,17 +359,21 @@ public class TasksFragment extends Fragment {
             command = "&COMMAND=add";
             idAttr = "";
         }
-        String query = model+command+idAttr+
-                "&attrs[task]="+task.replace(" ", "%20")+
-                "&attrs[member]="+member_id+
-                "&attrs[priority]="+priority+
-                "&attrs[lat]=0"+
-                "&attrs[lng]=0"+
-                "&attrs[location]="+location+
-                "&attrs[date]="+selectedDate+
-                "&attrs[status]="+status+
-                "&attrs[floor]="+floor.replace(" ", "%20")+
-                "&attrs[manager_id]="+manager_id;
+
+        String attrToUpdate = "&attrs[status]="+status;
+        if (mainActivity.getUser().getType() == User.Type.MANAGER){
+            attrToUpdate += "&attrs[task]="+task.replace(" ", "%20")+
+                    "&attrs[member]="+member_id+
+                    "&attrs[priority]="+priority+
+                    "&attrs[lat]=0"+
+                    "&attrs[lng]=0"+
+                    "&attrs[location]="+location+
+                    "&attrs[date]="+selectedDate+
+                    "&attrs[floor]="+floor.replace(" ", "%20")+
+                    "&attrs[manager_id]="+manager_id;
+        }
+
+        String query = model+command+idAttr+attrToUpdate;
         Log.d("mesch", query);
         GetRequest.send(query, mainActivity, new GetRequestCallback() {
             @Override
