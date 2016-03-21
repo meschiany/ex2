@@ -44,7 +44,7 @@ public class NewEditTask extends AppCompatActivity {
     private static final int GET_FROM_GALLERY = 8;
 
     private EditText taskDesk;
-    private EditText etLoc;
+//    private EditText etLoc;
     private Button btnNewTask;
     private Spinner spn_priority;
     private Spinner spn_member;
@@ -57,10 +57,11 @@ public class NewEditTask extends AppCompatActivity {
     private String currentStatus = Consts.STATUS_PENDING;
     private HashMap userMailId = new HashMap();
     private ImageButton uploadImageBtn;
-    private Long selectedDate;
+    private Long selectedDate = System.currentTimeMillis();
 
     private Context context;
     private ImageView taskImage;
+    private String currMember;
 
 
     @Override
@@ -68,7 +69,7 @@ public class NewEditTask extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_add_new_task);
         taskDesk=(EditText)findViewById(R.id.taskDesk);
-        etLoc = (EditText)findViewById(R.id.etLoc);
+//        etLoc = (EditText)findViewById(R.id.etLoc);
         selDate = (CalendarView)findViewById(R.id.calendarView);
 
         selDate.setOnDateChangeListener(new CalendarView.OnDateChangeListener() {
@@ -108,6 +109,8 @@ public class NewEditTask extends AppCompatActivity {
 
                             spn_member.setAdapter(member_adapter);
                             member_adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+                            int spinnerPosition = member_adapter.getPosition(currMember);
+                            spn_member.setSelection(spinnerPosition);
                         }
 
                         @Override
@@ -159,13 +162,11 @@ public class NewEditTask extends AppCompatActivity {
             existingTask = (Task)getIntent().getSerializableExtra("task");
             int spinnerPosition = priority_adapter.getPosition(existingTask.getPriority());
             spn_priority.setSelection(spinnerPosition);
-//            spinnerPosition = member_adapter.getPosition(existingTask.getMember());
-//            spn_member.setSelection(spinnerPosition);
             spinnerPosition = floor_adapter.getPosition(existingTask.getFloor());
             spn_floor.setSelection(spinnerPosition);
-            etLoc.setText(existingTask.getAddress());
+//            etLoc.setText(existingTask.getAddress());
             taskDesk.setText(existingTask.getTask());
-
+            currMember = existingTask.getMember_name();
             try {
                 selectedDate = existingTask.getDate();
                 selDate.setDate(existingTask.getDate());
@@ -184,13 +185,13 @@ public class NewEditTask extends AppCompatActivity {
             }
         }
 
-        etLoc.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View arg0) {
-                Intent newMapIntent = new Intent(NewEditTask.this, MapsActivity.class);
-                startActivityForResult(newMapIntent,Consts.GET_LOCATION);
-            }
-        });
+//        etLoc.setOnClickListener(new View.OnClickListener() {
+//            @Override
+//            public void onClick(View arg0) {
+//                Intent newMapIntent = new Intent(NewEditTask.this, MapsActivity.class);
+//                startActivityForResult(newMapIntent,Consts.GET_LOCATION);
+//            }
+//        });
 
         // new or edit
         btnNewTask.setOnClickListener(new View.OnClickListener() {
@@ -203,7 +204,7 @@ public class NewEditTask extends AppCompatActivity {
                 intent.putExtra("PRIORITY", spn_priority.getSelectedItem().toString());
                 intent.putExtra("LAT", latlng.latitude);
                 intent.putExtra("LNG", latlng.longitude);
-                intent.putExtra("LOCATION", etLoc.getText().toString());
+                intent.putExtra("LOCATION", "deprecated");
                 intent.putExtra("MEMBER_ID", userMailId.get(spn_member.getSelectedItem().toString()).toString());
                 intent.putExtra("FLOOR", spn_floor.getSelectedItem().toString());
                 intent.putExtra("DATE", selectedDate);
@@ -267,12 +268,12 @@ public class NewEditTask extends AppCompatActivity {
     public void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
         switch(requestCode) {
-            case (Consts.GET_LOCATION) : {
-                Long lat = data.getLongExtra("lat",1);
-                Long lng = data.getLongExtra("lng", 1);
-                latlng = new LatLng(lat,lng);
-                etLoc.setText(data.getStringExtra("location"));
-            }
+//            case (Consts.GET_LOCATION) : {
+//                Long lat = 0;
+//                Long lng = 0;
+//                latlng = new LatLng(lat,lng);
+//                etLoc.setText(data.getStringExtra("location"));
+//            }
 
             case GET_FROM_GALLERY :{
 

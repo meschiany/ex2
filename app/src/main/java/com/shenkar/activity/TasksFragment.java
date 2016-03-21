@@ -1,12 +1,11 @@
 package com.shenkar.activity;
 
 import android.app.Activity;
-import android.content.ContentValues;
 import android.content.Context;
 import android.content.Intent;
-import android.database.sqlite.SQLiteDatabase;
 import android.graphics.Color;
 import android.os.Bundle;
+import android.os.Handler;
 import android.support.annotation.Nullable;
 import android.support.design.widget.FloatingActionButton;
 import android.support.v4.app.Fragment;
@@ -16,13 +15,11 @@ import android.view.View;
 import android.view.ViewGroup;
 
 import android.widget.AdapterView;
-import android.widget.Button;
 import android.widget.CompoundButton;
 
 import android.widget.ListView;
 import android.widget.Switch;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import com.ex2.shenkar.todolist.Consts;
 import com.ex2.shenkar.todolist.CustomAdapter;
@@ -42,8 +39,6 @@ import org.json.JSONObject;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
-import java.util.Timer;
-import java.util.TimerTask;
 
 /**
  * Created by shnizle on 3/15/2016.
@@ -69,11 +64,12 @@ public class TasksFragment extends Fragment {
     private TextView txtOrder;
     private Switch swtSort;
     private TextView txtSort;
-
+    private Handler mHandler;
 
     private Welcome mainActivity;
 
     private ArrayList<Task> tasks = new ArrayList<Task>();
+    private int mRefreshInterval;
 
 
 //    private Cursor cursor;
@@ -86,28 +82,17 @@ public class TasksFragment extends Fragment {
     @Nullable
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
-
         rootView = inflater.inflate(R.layout.activity_main, container, false);
         mainActivity = (Welcome) getActivity();
-
+        mainActivity.loading(true);
         txtAll=(TextView)rootView.findViewById(R.id.txtAll);
         txtPending=(TextView)rootView.findViewById(R.id.txtPending);
         txtPrgs=(TextView)rootView.findViewById(R.id.txtPrgs);
-        mainActivity = (Welcome) getActivity();
         myListAdapter = new CustomAdapter(mainActivity, adapterTasks);
-
-
-        int refreshInterval = mainActivity.getUser().getSyncIntervalDelay()*10000;
+        mRefreshInterval = mainActivity.getUser().getSyncIntervalDelay()*1000;
 
         setActiveList();
-
-        new Timer().scheduleAtFixedRate(new TimerTask() {
-            @Override
-            public void run() {
-                getAllTasksFromDB();
-            }
-        }, 0, refreshInterval);
-
+        mHandler = new Handler();
         getAllTasksFromDB();
 
         btn = (FloatingActionButton) rootView.findViewById(R.id.fab);
@@ -178,12 +163,24 @@ public class TasksFragment extends Fragment {
         return rootView;
     }
 
+    private void reschduleDbRefresh() {
+        mHandler.removeCallbacks(mDbRefreshRunnable);
+        mHandler.postDelayed(mDbRefreshRunnable, mRefreshInterval);
+    }
+
+    private Runnable mDbRefreshRunnable = new Runnable() {
+        @Override
+        public void run() {
+            getAllTasksFromDB();
+        }
+    };
     public void getAllTasksFromDB(){
+        reschduleDbRefresh();
         int user_id = mainActivity.getUser().getId();
         String query = "MODEL=TasksAndMembers&COMMAND=view" + ((mainActivity.getUser().getType() == User.Type.MANAGER) ?
                 "&filters[manager_id]="+String.valueOf(user_id) : "&filters[member]="+String.valueOf(user_id));
 
-        GetRequest.send(query, getContext(), new GetRequestCallback() {
+        GetRequest.send(query, mainActivity, new GetRequestCallback() {
             @Override
             public void success(JSONObject jsonObject) {
 
@@ -323,31 +320,30 @@ public class TasksFragment extends Fragment {
             }
             orderTasks();
         }
+        mainActivity.loading(false);
         myListAdapter.notifyDataSetChanged();
         context=getContext();
         lv=(ListView) rootView.findViewById(R.id.list);
         lv.setAdapter(myListAdapter);
         lv.setOnItemClickListener(new android.widget.AdapterView.OnItemClickListener() {
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-
-
-                Intent editTaskIntent = new Intent(context, NewEditTask.class);
-                editTaskIntent.putExtra("position", position);
-                editTaskIntent.putExtra("task", adapterTasks.get(position));
-                startActivityForResult(editTaskIntent, Consts.EDIT_TASK_CODE);
-
+            Intent editTaskIntent = new Intent(context, NewEditTask.class);
+            editTaskIntent.putExtra("position", position);
+            editTaskIntent.putExtra("task", adapterTasks.get(position));
+            startActivityForResult(editTaskIntent, Consts.EDIT_TASK_CODE);
             }
         });
     }
 
     public void setRecordToDB(Intent data){
-        int action = data.getIntExtra("ACTION",0);
+        int action = data.getIntExtra("ACTION", 0);
         String task=data.getStringExtra("TASK");
         String priority=data.getStringExtra("PRIORITY");
         Double lat = data.getDoubleExtra("LAT", 1);
         Double lng = data.getDoubleExtra("LNG", 1);
         String location = data.getStringExtra("LOCATION");
         String member_id = data.getStringExtra("MEMBER_ID");
+        int manager_id = mainActivity.getUser().getId();
         String floor = data.getStringExtra("FLOOR");
         Long selectedDate = data.getLongExtra("DATE", 1);
         String status = data.getStringExtra("STATUS");
@@ -367,19 +363,24 @@ public class TasksFragment extends Fragment {
                 "&attrs[task]="+task.replace(" ", "%20")+
                 "&attrs[member]="+member_id+
                 "&attrs[priority]="+priority+
-                "&attrs[lat]="+lat+
-                "&attrs[lng]="+lng+
+                "&attrs[lat]=0"+
+                "&attrs[lng]=0"+
                 "&attrs[location]="+location+
                 "&attrs[date]="+selectedDate+
                 "&attrs[status]="+status+
-                "&attrs[floor]="+floor;
+                "&attrs[floor]="+floor.replace(" ", "%20")+
+                "&attrs[manager_id]="+manager_id;
         Log.d("mesch", query);
-        GetRequest.send(query, getContext(), new GetRequestCallback() {
+        GetRequest.send(query, mainActivity, new GetRequestCallback() {
             @Override
-            public void success(JSONObject jsonObject) {}
+            public void success(JSONObject jsonObject) {
+                Log.d("d","d");
+            }
 
             @Override
-            public void failed(Exception error) {}
+            public void failed(Exception error) {
+                Log.d("d","d");
+            }
         });
 //        ContentValues values = new ContentValues();
 //        values.put(TaskContract.Columns.TASK, task);
